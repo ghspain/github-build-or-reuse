@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented here.
 
+## [Unreleased]
+
+### Changed
+
+- Repository validation now derives the authoritative semantic version from `metadata.yaml` and verifies consistency across the canonical skill, plugin manifest, changelog, release notes, lifecycle files, labels and evals instead of hardcoding a release number.
+
 ## [1.1.0] - 2026-08-25
 
 ### Added
