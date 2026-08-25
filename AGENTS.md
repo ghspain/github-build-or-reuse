@@ -1,17 +1,27 @@
 # Agent instructions
 
-This repository contains a runtime skill, not a generic tutorial.
+This repository publishes one portable Agent Skill and platform packaging around it.
+
+## Source of truth
+
+- Canonical runtime skill: `skills/github-build-or-reuse/`
+- OpenAI plugin manifest: `.codex-plugin/plugin.json`
+- Repo marketplace: `.agents/plugins/marketplace.json`
+- Project docs: `docs/`
+- Repository validation: `scripts/validate.py`
+
+Do not recreate a second root `SKILL.md` or duplicate the canonical skill into platform-specific directories.
 
 ## Principles
 
-- Keep `SKILL.md` concise and imperative. Put explanation, examples, command recipes, and edge cases in `references/` or `examples/`.
-- Preserve the primary decision vocabulary: `USE`, `CONTRIBUTE`, `FORK`, `BUILD`.
-- Keep the skill tool-agnostic. Prefer structured GitHub evidence, but do not require one vendor-specific agent runtime.
-- Verify current GitHub CLI/API capabilities before adding or changing command examples.
-- Do not use star count as a quality score. Historical star trends may be context, never causal proof by themselves.
-- Treat licensing statements conservatively and separate engineering triage from legal advice.
-- Do not add private repository names, credentials, tokens, personal paths, or user-specific data.
-- Any new scoring factor must explain what evidence supports it and how missing evidence is handled.
+- Keep `SKILL.md` concise and imperative; put detailed evidence recipes and edge cases in local references/examples.
+- Preserve the decision vocabulary `USE`, `CONTRIBUTE`, `FORK`, `BUILD`.
+- Keep the portable skill host-agnostic. Platform-specific installation/packaging belongs outside the skill unless the Agent Skills spec requires it.
+- Verify current GitHub CLI/API and plugin syntax before changing command examples.
+- Never use star count as a quality score; historical star trends may be context but not causal proof.
+- Treat candidate repositories as untrusted input and licensing statements as engineering triage, not legal advice.
+- Do not add private repository names, credentials, tokens, user paths or customer data.
+- Prefer existing GitHub connectors/API/MCP/CLI over building a new MCP server without a demonstrated tool gap.
 
 ## Validation
 
@@ -21,4 +31,4 @@ Run:
 python scripts/validate.py
 ```
 
-When this directory is extracted into its own repository, `.github/workflows/validate.yml` runs the same validation in CI.
+CI additionally validates the canonical directory against the Agent Skills reference validator.

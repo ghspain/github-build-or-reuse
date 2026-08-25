@@ -1,8 +1,10 @@
 name: github-build-or-reuse
 origin: https://github.com/ghspain/github-build-or-reuse
-origin_path: /
+origin_path: skills/github-build-or-reuse
+plugin_manifest: .codex-plugin/plugin.json
 category: github
 status: active
+version: 1.1.0
 sync:
   enabled: false
   interval: weekly
@@ -10,9 +12,10 @@ sync:
 tags:
   - github
   - open-source
+  - agent-skills
   - due-diligence
   - software-architecture
-  - reuse
+  - software-reuse
   - build-vs-buy
 inspiration:
   - https://github.com/polmarza/github-repo-scout

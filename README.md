@@ -1,96 +1,173 @@
 # GitHub Build or Reuse
 
-An agent skill for answering a question that should come before substantial implementation:
+**Search before you build.** A portable Agent Skill and ChatGPT/Codex plugin that researches existing GitHub and open-source projects before substantial implementation, then recommends one path: **USE, CONTRIBUTE, FORK, or BUILD**.
 
-> Should we **USE**, **CONTRIBUTE**, **FORK**, or **BUILD**?
+[![Validate](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml/badge.svg)](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Modern coding agents make greenfield software cheap enough that teams can accidentally recreate mature open-source work before checking what already exists. This skill makes discovery and due diligence a first-class engineering gate.
+AI coding agents have made greenfield software dramatically cheaper to produce. That makes a previously mundane engineering question more important, not less:
 
-## What is different
+> **Does this need to be built at all?**
 
-This is intentionally more than a GitHub repository search prompt. It separates four stages:
+`github-build-or-reuse` turns that question into a repeatable pre-build gate. It searches by product concept rather than exact package name, verifies serious candidates, compares adoption with greenfield effort, and makes the reuse decision explicit.
 
-1. **Requirements** — define must-haves and hard constraints.
-2. **Discovery** — find projects by product concept, not only exact library names.
-3. **Due diligence** — inspect fit, maintenance, security, governance, licensing, architecture, CI/tests, releases, and contribution health.
-4. **Decision** — recommend exactly one primary path: `USE`, `CONTRIBUTE`, `FORK`, or `BUILD`.
+## The four outcomes
 
-Popularity is evidence of attention, not proof of quality. A high star count never overrides a failed license, security, architecture, or must-have requirement gate.
+| Decision | Meaning |
+| --- | --- |
+| **USE** | Adopt an existing project because it already clears the important requirements and risk gates. |
+| **CONTRIBUTE** | Use a strong upstream and add the missing capability there rather than creating a parallel implementation. |
+| **FORK** | Reuse a strong base but deliberately own sustained divergence, upgrades and security. |
+| **BUILD** | Start greenfield because no candidate clears the hard gates or adaptation would replace the core anyway. |
 
-## Tool strategy
+Even `BUILD` should preserve reusable libraries, protocols, schemas and implementation lessons discovered during research.
 
-The skill is tool-agnostic but prefers structured GitHub evidence when available:
+## What it checks
 
-1. Native GitHub connector/API.
-2. Authenticated GitHub CLI (`gh`).
-3. GitHub web pages and GitHub search.
-4. Broader web search for ecosystem context, comparisons, historical adoption, or evidence GitHub does not expose directly.
+The default due diligence goes beyond stars and README claims:
 
-See [`references/github-evidence.md`](references/github-evidence.md) for current `gh` examples.
+- functional requirement coverage;
+- architecture, extension points and deployment fit;
+- recent maintenance, releases, CI and issue/PR health;
+- security policy, dependency hygiene, auth, auditability and observability when relevant;
+- license and governance constraints;
+- maintainer concentration and contribution sustainability;
+- adoption, migration and long-term fork cost.
 
-## Decision model
+Hard gates override popularity and numeric scoring. Unknown evidence stays **unknown**.
 
-The default weighted model is:
+## Install
 
-| Dimension | Weight |
-| --- | ---: |
-| Functional fit | 30 |
-| Architecture & integration | 15 |
-| Maintenance & project health | 15 |
-| Security & operational readiness | 15 |
-| License & governance | 10 |
-| Community sustainability | 10 |
-| Adoption/migration cost | 5 |
+### GitHub CLI / GitHub Copilot — recommended portable path
 
-Scores are decision support, not an automatic verdict. Hard gates always win. See [`references/decision-framework.md`](references/decision-framework.md).
+GitHub CLI **2.90.0+** can preview, install and update Agent Skills directly from GitHub repositories:
+
+```bash
+# Inspect before installing
+gh skill preview ghspain/github-build-or-reuse github-build-or-reuse
+
+# Install the skill
+gh skill install ghspain/github-build-or-reuse github-build-or-reuse
+
+# Later, check/update installed skills
+gh skill update github-build-or-reuse
+```
+
+GitHub Copilot supports Agent Skills in the cloud agent, code review, Copilot CLI, the Copilot app and agent mode in supported IDEs. `gh skill` can also target another supported agent host and scope; inspect `gh skill install --help` for the hosts available in your current CLI.
+
+### ChatGPT / Codex plugin
+
+This repository is also packaged as an OpenAI plugin. In Codex CLI, add the repository marketplace:
+
+```bash
+codex plugin marketplace add ghspain/github-build-or-reuse --ref main
+```
+
+Then open `/plugins`, choose the **GitHub Community Spain** marketplace, install **GitHub Build or Reuse**, and start a new session. OpenAI plugins can bundle skills and MCP tools; this plugin intentionally bundles only the portable skill today.
+
+### Skill-only install for Agent Skills-compatible clients
+
+The canonical portable skill is:
+
+```text
+skills/github-build-or-reuse/
+```
+
+Copy or install that directory into the skill location supported by your client. Common project/user locations include `.agents/skills/` and `~/.agents/skills/`; GitHub Copilot also supports `.github/skills/` and `~/.copilot/skills/`.
+
+For Claude Code, GitHub CLI can install a compatible skill directly for that host, for example:
+
+```bash
+gh skill install ghspain/github-build-or-reuse github-build-or-reuse --agent claude-code --scope user
+```
+
+## Use
+
+You do not need a magic phrase. The skill description is designed to activate on substantial new-app/tool/feature decisions and open-source alternative searches. You can also invoke it explicitly:
+
+> Before building this self-hosted service, search GitHub and decide whether we should USE, CONTRIBUTE, FORK, or BUILD.
+
+Other useful prompts:
+
+- “Is there already an open-source project that covers most of this?”
+- “Compare these two repositories as a base for our product.”
+- “Could we contribute the missing feature upstream instead of maintaining a fork?”
+- “Prove that greenfield is the better option before we start generating code.”
+
+Tiny throwaway scripts and mechanical edits intentionally do **not** require a full repository due-diligence cycle.
+
+## How it works
+
+1. **Frame requirements** — must-haves, constraints, deployment, security, licensing and acceptable adaptation effort.
+2. **Discover by concept** — multiple queries, synonyms, alternatives, topics and adjacent ecosystems.
+3. **Verify candidates** — structured GitHub/API/`gh` evidence where possible; web research as fallback/context.
+4. **Apply hard gates** — functional, license, security, platform, maintenance and governance.
+5. **Score fit** — functional fit carries the most weight; stars never decide the result.
+6. **Compare reuse vs greenfield** — include migration, extension and long-term ownership cost.
+7. **Choose one path** — USE, CONTRIBUTE, FORK or BUILD, with confidence and the smallest reversible next action.
+
+See [`references/decision-framework.md`](skills/github-build-or-reuse/references/decision-framework.md) and the [`GitHub evidence playbook`](skills/github-build-or-reuse/references/github-evidence.md).
 
 ## Due-diligence depth
 
-- **Quick scan** — discovery, license, archive/activity, README-level fit. Good for low-cost experiments.
-- **Standard** — adds releases, CI/tests, security policy, issues/PRs, docs, architecture, contribution health. Default for a real implementation decision.
-- **Deep** — adds code/dependency inspection, maintainer concentration, security history, PoC/benchmarking, upgrade/migration risk. Use for strategic or enterprise adoption.
+- **Quick** — concept search, license, archive/activity and README-level fit for low-cost experiments.
+- **Standard** — adds releases, tests/CI, security policy, issues/PRs, architecture and contribution health. Default for a real adoption decision.
+- **Deep** — adds code/dependency inspection, maintainer concentration, security history, PoC/benchmarks and upgrade/migration risk for strategic adoption.
 
-## Example
+## Why there is no bundled MCP server
 
-See [`examples/presentation-generator.md`](examples/presentation-generator.md) for an example of turning “build an AI presentation app” into an evidence-driven reuse decision.
+Because the project follows its own rule: **reuse before build**.
 
-## Standalone-ready layout
+The workflow already works with host-provided GitHub connectors/API, existing MCP integrations, authenticated `gh`, or web research. A bespoke MCP server that simply wraps GitHub would add authentication, maintenance and security surface without adding a unique capability.
 
-This directory is intentionally structured as a future repository root. You can copy the **contents of this folder** into a new repository without relying on the parent skills monorepo.
+We will reconsider MCP when there is a demonstrated cross-host tool gap or a need for server-side aggregation/policy. See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md).
 
-```text
-.
-├── .github/workflows/validate.yml
-├── agents/openai.yaml
-├── examples/
-├── references/
-├── scripts/validate.py
-├── AGENTS.md
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── LICENSE
-├── README.md
-├── SECURITY.md
-├── SKILL.md
-└── metadata.yaml
-```
+## Standards and compatibility
 
-The nested `.github` workflow is inert while this project is stored inside another repository, and becomes a normal repository workflow after extraction to its own root.
+The canonical skill follows the open **Agent Skills** specification. GitHub Copilot supports that standard across multiple surfaces, and the repository additionally follows OpenAI's plugin packaging conventions (`.codex-plugin/plugin.json` + `skills/`). `AGENTS.md` remains project-maintainer guidance rather than runtime skill content.
 
-## Validation
+See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md) for the reasoning behind Agent Skills, plugins, AGENTS.md, OpenAI Agents SDK definitions and MCP.
+
+## Quality and evals
+
+The skill ships with output evals and trigger queries under [`skills/github-build-or-reuse/evals/`](skills/github-build-or-reuse/evals/). CI validates the repository structure and the skill against the Agent Skills reference validator.
 
 ```bash
 python scripts/validate.py
 ```
 
-The validator uses only the Python standard library.
+## Project structure
 
-## Inspiration and attribution
+```text
+.
+├── .agents/plugins/marketplace.json
+├── .codex-plugin/plugin.json
+├── .github/workflows/validate.yml
+├── docs/
+├── skills/
+│   └── github-build-or-reuse/
+│       ├── SKILL.md
+│       ├── agents/openai.yaml
+│       ├── evals/
+│       ├── examples/
+│       └── references/
+├── AGENTS.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── NOTICE.md
+├── README.md
+└── SECURITY.md
+```
 
-The original trigger for this project was [`polmarza/github-repo-scout`](https://github.com/polmarza/github-repo-scout), an MIT-licensed skill built around searching GitHub by product concept, filtering licenses, and checking repository freshness. This project is an independent implementation that expands the idea into structured due diligence and a build-vs-reuse decision framework.
+## Inspiration
 
-See [`NOTICE.md`](NOTICE.md).
+The project was prompted in part by [polmarza/github-repo-scout](https://github.com/polmarza/github-repo-scout), an MIT-licensed skill built around concept-level GitHub discovery, license filtering and repository freshness. `github-build-or-reuse` is an independent implementation that extends the idea into requirements, due diligence, enterprise/operational evidence and an explicit build-vs-reuse decision framework. See [`NOTICE.md`](NOTICE.md).
+
+## Contributing
+
+Issues and pull requests are welcome. Please keep the portable runtime behavior in the canonical skill and platform packaging at repository root; see [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`AGENTS.md`](AGENTS.md).
 
 ## License
 
-MIT.
+MIT © 2026 GitHub Community Spain.

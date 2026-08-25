@@ -1,7 +1,7 @@
 interface:
   display_name: GitHub Build or Reuse
   short_description: Decide whether to use, contribute, fork, or build
-  default_prompt: Use $github-build-or-reuse to search existing open-source projects, perform due diligence, and recommend USE, CONTRIBUTE, FORK, or BUILD before implementation.
+  default_prompt: Use $github-build-or-reuse to research existing open-source projects, perform due diligence, and recommend USE, CONTRIBUTE, FORK, or BUILD before substantial implementation.
 policy:
   products:
   - chatgpt
