@@ -1,0 +1,21 @@
+{
+  "name": "github-community-spain",
+  "interface": {
+    "displayName": "GitHub Community Spain"
+  },
+  "plugins": [
+    {
+      "name": "github-build-or-reuse",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/ghspain/github-build-or-reuse.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

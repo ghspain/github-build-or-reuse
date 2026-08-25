@@ -1,0 +1,48 @@
+{
+  "skill_name": "github-build-or-reuse",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to build a self-hosted app that creates editable PowerPoint presentations with AI. Before we start coding, tell me whether there is anything on GitHub worth using as a base.",
+      "expected_output": "Live repository research with several credible candidates, verified evidence for key gates, and one explicit USE, CONTRIBUTE, FORK, or BUILD verdict before implementation begins.",
+      "files": [],
+      "assertions": [
+        "The response performs repository discovery before proposing implementation",
+        "The response distinguishes discovery signals such as stars from verified fit and maintenance evidence",
+        "The response ends with exactly one primary USE, CONTRIBUTE, FORK, or BUILD verdict and a confidence level"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We need a self-hosted feature-flag service for an internal platform. It must have an API, auditability, active maintenance and a license we can use commercially. Compare reusing an existing open-source project with building our own.",
+      "expected_output": "A requirements-led shortlist that verifies license, maintenance, operational/security fit and adoption cost, then compares reuse with greenfield and selects one primary decision path.",
+      "files": [],
+      "assertions": [
+        "The response treats the stated requirements as gates rather than ranking repositories primarily by popularity",
+        "The response verifies or marks unknown consequential license and maintenance claims",
+        "The response compares adoption or adaptation effort with greenfield effort"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write me a ten-line bash script that renames every .jpeg file in this folder to .jpg.",
+      "expected_output": "The skill recognizes this as a trivial/throwaway script where full repository due diligence would add more cost than value, and does not force a multi-repository research cycle.",
+      "files": [],
+      "assertions": [
+        "The response does not force a 3-6 repository due-diligence comparison for this tiny task",
+        "The response remains useful rather than refusing the task because discovery was unnecessary"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Do not browse or search GitHub. I know alternatives exist, but for this prototype I deliberately want a fresh implementation from scratch.",
+      "expected_output": "The skill respects the explicit instruction to skip discovery, states that the reuse gate is intentionally bypassed, and does not invent evidence about repositories it did not inspect.",
+      "files": [],
+      "assertions": [
+        "The response honors the explicit request not to browse",
+        "The response does not fabricate repository comparisons or live GitHub evidence",
+        "The response makes clear that the reuse decision gate was intentionally bypassed"
+      ]
+    }
+  ]
+}
