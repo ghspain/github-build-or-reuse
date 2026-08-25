@@ -1,0 +1,18 @@
+name: github-build-or-reuse
+origin: https://github.com/ghspain/github-build-or-reuse
+origin_path: /
+category: github
+status: active
+sync:
+  enabled: false
+  interval: weekly
+  strategy: manual
+tags:
+  - github
+  - open-source
+  - due-diligence
+  - software-architecture
+  - reuse
+  - build-vs-buy
+inspiration:
+  - https://github.com/polmarza/github-repo-scout
