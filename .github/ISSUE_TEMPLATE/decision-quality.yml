@@ -1,0 +1,44 @@
+name: Decision quality feedback
+description: Report a missed repository, poor ranking, wrong USE/CONTRIBUTE/FORK/BUILD verdict, or activation problem
+title: "decision: "
+body:
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: What went wrong?
+      options:
+        - A strong repository was missed
+        - A weak repository was ranked too highly
+        - The final USE / CONTRIBUTE / FORK / BUILD verdict was wrong
+        - A hard gate was applied incorrectly
+        - The skill triggered when it should not have
+        - The skill did not trigger when it should have
+        - Evidence or confidence handling was weak
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Sanitized prompt / use case
+      description: Remove private repository names, credentials, customer data, and secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What would a better decision look like?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence or candidate repositories
+      description: Link public repositories or explain which evidence should have changed the result.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed secrets and private/customer-specific information from this report.
+          required: true
