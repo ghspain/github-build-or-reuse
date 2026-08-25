@@ -1,0 +1,37 @@
+name: Improvement proposal
+description: Propose a reusable improvement to the skill, evidence model, packaging, evals, or supported workflow
+title: "feat: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe the recurring failure or gap, not only the implementation you have in mind.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed improvement
+      description: Explain how this changes discovery, due diligence, decision logic, packaging, or evaluation.
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Best home for the change
+      options:
+        - Canonical Agent Skill
+        - Reference / example
+        - Eval / trigger test
+        - OpenAI plugin packaging
+        - GitHub / gh skill packaging
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence / examples
+      description: Add public examples, failing prompts, or links that show why this is reusable.

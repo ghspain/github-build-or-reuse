@@ -1,0 +1,46 @@
+name: Bug report
+description: Report incorrect or broken skill, packaging, install, or validation behavior
+title: "bug: "
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve GitHub Build or Reuse. Do not include tokens, private repository contents, or customer data.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did this happen?
+      options:
+        - Agent Skill behavior
+        - GitHub CLI / gh skill
+        - GitHub Copilot
+        - ChatGPT / Codex plugin
+        - Claude Code / another Agent Skills host
+        - CI / validation
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should the skill or packaging have done?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead? Include sanitized logs or output if useful.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      placeholder: v1.1.0, main, or a commit SHA
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Give the smallest non-sensitive prompt or sequence that reproduces the issue.
