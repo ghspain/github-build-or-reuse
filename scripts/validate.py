@@ -14,6 +14,7 @@ REQUIRED = [
     ROOT / ".codex-plugin/plugin.json",
     ROOT / ".agents/plugins/marketplace.json",
     ROOT / ".github/labels.json",
+    ROOT / ".github/workflows/cleanup-merged-branches.yml",
     ROOT / ".github/workflows/release.yml",
     ROOT / ".github/workflows/repository-maintenance.yml",
     ROOT / ".github/workflows/validate.yml",
@@ -21,6 +22,7 @@ REQUIRED = [
     ROOT / "LICENSE",
     ROOT / "NOTICE.md",
     ROOT / "metadata.yaml",
+    ROOT / "skills.sh.json",
     ROOT / "AGENTS.md",
     ROOT / "CONTRIBUTING.md",
     ROOT / "GOVERNANCE.md",
@@ -133,6 +135,16 @@ def main() -> None:
     entries = marketplace.get("plugins", [])
     if not any(item.get("name") == "github-build-or-reuse" for item in entries):
         fail("marketplace must expose github-build-or-reuse")
+
+    skills_sh = read_json(ROOT / "skills.sh.json")
+    groupings = skills_sh.get("groupings", [])
+    grouped_skills = {
+        skill
+        for group in groupings
+        for skill in group.get("skills", [])
+    }
+    if "github-build-or-reuse" not in grouped_skills:
+        fail("skills.sh.json must expose github-build-or-reuse")
 
     labels = read_json(ROOT / ".github/labels.json")
     label_names = {item.get("name") for item in labels}

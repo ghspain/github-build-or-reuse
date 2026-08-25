@@ -1,0 +1,11 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "GitHub & Open Source",
+      "description": "Decide whether to use, contribute to, fork, or build before starting substantial implementation.",
+      "skills": ["github-build-or-reuse"]
+    }
+  ]
+}

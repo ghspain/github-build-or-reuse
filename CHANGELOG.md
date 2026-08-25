@@ -4,6 +4,13 @@ All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
+### Added
+
+- `npx skills` / skills.sh installation and discovery documentation.
+- `skills.sh.json` catalog metadata.
+- CI coverage for Vercel `skills` CLI discovery with telemetry disabled.
+- Automatic cleanup of same-repository branches after merged pull requests.
+
 ### Changed
 
 - Repository validation now derives the authoritative semantic version from `metadata.yaml` and verifies consistency across the canonical skill, plugin manifest, changelog, release notes, lifecycle files, labels and evals instead of hardcoding a release number.
