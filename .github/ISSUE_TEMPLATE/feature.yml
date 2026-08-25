@@ -1,6 +1,7 @@
 name: Improvement proposal
 description: Propose a reusable improvement to the skill, evidence model, packaging, evals, or supported workflow
 title: "feat: "
+labels: ["enhancement"]
 body:
   - type: textarea
     id: problem

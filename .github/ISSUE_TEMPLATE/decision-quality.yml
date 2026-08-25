@@ -1,6 +1,7 @@
 name: Decision quality feedback
 description: Report a missed repository, poor ranking, wrong USE/CONTRIBUTE/FORK/BUILD verdict, or activation problem
 title: "decision: "
+labels: ["decision-quality"]
 body:
   - type: dropdown
     id: issue_type
