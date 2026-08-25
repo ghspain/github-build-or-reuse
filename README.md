@@ -4,6 +4,7 @@
 
 [![Validate](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml/badge.svg)](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml)
 [![Release](https://img.shields.io/github/v/release/ghspain/github-build-or-reuse)](https://github.com/ghspain/github-build-or-reuse/releases)
+[![skills.sh](https://skills.sh/b/ghspain/github-build-or-reuse)](https://skills.sh/ghspain/github-build-or-reuse)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 AI coding agents have made greenfield software dramatically cheaper to produce. That makes a previously mundane engineering question more important, not less:
@@ -39,7 +40,24 @@ Hard gates override popularity and numeric scoring. Unknown evidence stays **unk
 
 ## Install
 
-### GitHub CLI / GitHub Copilot — recommended portable path
+### `npx skills` — easiest cross-agent path
+
+The open `skills` CLI discovers this repository directly and can install the skill into many supported agents:
+
+```bash
+# Inspect what the repository exposes
+npx skills@latest add ghspain/github-build-or-reuse --list
+
+# Install this skill
+npx skills@latest add ghspain/github-build-or-reuse --skill github-build-or-reuse
+
+# Example: install globally for Codex
+npx skills@latest add ghspain/github-build-or-reuse --skill github-build-or-reuse --agent codex --global
+```
+
+The same source can be discovered through [skills.sh](https://skills.sh/). No special GitHub label or topic is required for CLI installation. `skills.sh` ranking is driven by anonymous install telemetry from the CLI; public search/index ingestion can lag behind a repository that already installs correctly.
+
+### GitHub CLI / GitHub Copilot
 
 GitHub CLI **2.90.0+** can preview, install and update Agent Skills directly from GitHub repositories:
 
@@ -128,13 +146,18 @@ We will reconsider MCP when there is a demonstrated cross-host tool gap or a nee
 
 ## Standards and compatibility
 
-The canonical skill follows the open **Agent Skills** specification. GitHub Copilot supports that standard across multiple surfaces, and the repository additionally follows OpenAI's plugin packaging conventions (`.codex-plugin/plugin.json` + `skills/`). `AGENTS.md` remains project-maintainer guidance rather than runtime skill content.
+The canonical skill follows the open **Agent Skills** specification. GitHub Copilot supports that standard across multiple surfaces, the Vercel `skills` CLI discovers the same `SKILL.md`, and the repository additionally follows OpenAI's plugin packaging conventions (`.codex-plugin/plugin.json` + `skills/`). `AGENTS.md` remains project-maintainer guidance rather than runtime skill content.
 
 See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md) for the reasoning behind Agent Skills, plugins, AGENTS.md, OpenAI Agents SDK definitions and MCP.
 
 ## Quality and evals
 
-The skill ships with output evals and trigger queries under [`skills/github-build-or-reuse/evals/`](skills/github-build-or-reuse/evals/). CI validates the repository structure and the skill against the Agent Skills reference validator.
+The skill ships with output evals and trigger queries under [`skills/github-build-or-reuse/evals/`](skills/github-build-or-reuse/evals/). CI validates:
+
+- repository packaging;
+- the Agent Skills reference specification;
+- GitHub CLI publishing with `gh skill publish --dry-run` when available;
+- discovery by `npx skills@latest add . --list` with telemetry disabled.
 
 ```bash
 python scripts/validate.py
@@ -159,6 +182,7 @@ python scripts/validate.py
 │       ├── evals/
 │       ├── examples/
 │       └── references/
+├── skills.sh.json
 ├── AGENTS.md
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
