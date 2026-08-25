@@ -1,6 +1,7 @@
 name: Bug report
 description: Report incorrect or broken skill, packaging, install, or validation behavior
 title: "bug: "
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
