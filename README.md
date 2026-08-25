@@ -3,6 +3,7 @@
 **Search before you build.** A portable Agent Skill and ChatGPT/Codex plugin that researches existing GitHub and open-source projects before substantial implementation, then recommends one path: **USE, CONTRIBUTE, FORK, or BUILD**.
 
 [![Validate](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml/badge.svg)](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml)
+[![Release](https://img.shields.io/github/v/release/ghspain/github-build-or-reuse)](https://github.com/ghspain/github-build-or-reuse/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 AI coding agents have made greenfield software dramatically cheaper to produce. That makes a previously mundane engineering question more important, not less:
@@ -46,24 +47,27 @@ GitHub CLI **2.90.0+** can preview, install and update Agent Skills directly fro
 # Inspect before installing
 gh skill preview ghspain/github-build-or-reuse github-build-or-reuse
 
-# Install the skill
+# Install the current version
 gh skill install ghspain/github-build-or-reuse github-build-or-reuse
 
-# Later, check/update installed skills
+# Or install a reproducible release
+gh skill install ghspain/github-build-or-reuse github-build-or-reuse@v1.1.0
+
+# Later, check/update an unpinned installation
 gh skill update github-build-or-reuse
 ```
 
-GitHub Copilot supports Agent Skills in the cloud agent, code review, Copilot CLI, the Copilot app and agent mode in supported IDEs. `gh skill` can also target another supported agent host and scope; inspect `gh skill install --help` for the hosts available in your current CLI.
+For a long-lived environment, prefer a release tag or `--pin` so an upstream update cannot silently change behavior. GitHub Copilot supports Agent Skills in the cloud agent, code review, Copilot CLI, the Copilot app and agent mode in supported IDEs. `gh skill` can also target another supported agent host and scope; inspect `gh skill install --help` for the hosts available in your current CLI.
 
 ### ChatGPT / Codex plugin
 
-This repository is also packaged as an OpenAI plugin. In Codex CLI, add the repository marketplace:
+This repository is also packaged as an OpenAI plugin. For the stable release in Codex CLI:
 
 ```bash
-codex plugin marketplace add ghspain/github-build-or-reuse --ref main
+codex plugin marketplace add ghspain/github-build-or-reuse --ref v1.1.0
 ```
 
-Then open `/plugins`, choose the **GitHub Community Spain** marketplace, install **GitHub Build or Reuse**, and start a new session. OpenAI plugins can bundle skills and MCP tools; this plugin intentionally bundles only the portable skill today.
+Use `--ref main` only when you intentionally want the latest development version. Then open `/plugins`, choose the **GitHub Community Spain** marketplace, install **GitHub Build or Reuse**, and start a new session. OpenAI plugins can bundle skills and MCP tools; this plugin intentionally bundles only the portable skill today.
 
 ### Skill-only install for Agent Skills-compatible clients
 
@@ -78,7 +82,7 @@ Copy or install that directory into the skill location supported by your client.
 For Claude Code, GitHub CLI can install a compatible skill directly for that host, for example:
 
 ```bash
-gh skill install ghspain/github-build-or-reuse github-build-or-reuse --agent claude-code --scope user
+gh skill install ghspain/github-build-or-reuse github-build-or-reuse@v1.1.0 --agent claude-code --scope user
 ```
 
 ## Use
@@ -106,7 +110,7 @@ Tiny throwaway scripts and mechanical edits intentionally do **not** require a f
 6. **Compare reuse vs greenfield** — include migration, extension and long-term ownership cost.
 7. **Choose one path** — USE, CONTRIBUTE, FORK or BUILD, with confidence and the smallest reversible next action.
 
-See [`references/decision-framework.md`](skills/github-build-or-reuse/references/decision-framework.md) and the [`GitHub evidence playbook`](skills/github-build-or-reuse/references/github-evidence.md).
+See the [`decision framework`](skills/github-build-or-reuse/references/decision-framework.md) and the [`GitHub evidence playbook`](skills/github-build-or-reuse/references/github-evidence.md).
 
 ## Due-diligence depth
 
@@ -142,8 +146,12 @@ python scripts/validate.py
 .
 ├── .agents/plugins/marketplace.json
 ├── .codex-plugin/plugin.json
-├── .github/workflows/validate.yml
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   ├── labels.json
+│   └── workflows/
 ├── docs/
+│   └── releases/
 ├── skills/
 │   └── github-build-or-reuse/
 │       ├── SKILL.md
@@ -154,6 +162,7 @@ python scripts/validate.py
 ├── AGENTS.md
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
+├── GOVERNANCE.md
 ├── LICENSE
 ├── NOTICE.md
 ├── README.md
@@ -164,9 +173,9 @@ python scripts/validate.py
 
 The project was prompted in part by [polmarza/github-repo-scout](https://github.com/polmarza/github-repo-scout), an MIT-licensed skill built around concept-level GitHub discovery, license filtering and repository freshness. `github-build-or-reuse` is an independent implementation that extends the idea into requirements, due diligence, enterprise/operational evidence and an explicit build-vs-reuse decision framework. See [`NOTICE.md`](NOTICE.md).
 
-## Contributing
+## Contributing and governance
 
-Issues and pull requests are welcome. Please keep the portable runtime behavior in the canonical skill and platform packaging at repository root; see [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`AGENTS.md`](AGENTS.md).
+Issues and pull requests are welcome. Please keep the portable runtime behavior in the canonical skill and platform packaging at repository root; see [`CONTRIBUTING.md`](CONTRIBUTING.md), [`GOVERNANCE.md`](GOVERNANCE.md), and [`AGENTS.md`](AGENTS.md).
 
 ## License
 
