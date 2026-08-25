@@ -38,3 +38,11 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Validate Vercel skills CLI discovery
+        env:
+          DISABLE_TELEMETRY: '1'
+        run: |
+          npx -y skills@latest add . --list | tee /tmp/skills-list.txt
+          grep -q 'github-build-or-reuse' /tmp/skills-list.txt
+          echo "OK: npx skills discovers github-build-or-reuse"
