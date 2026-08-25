@@ -13,12 +13,17 @@ SKILL = ROOT / "skills" / "github-build-or-reuse"
 REQUIRED = [
     ROOT / ".codex-plugin/plugin.json",
     ROOT / ".agents/plugins/marketplace.json",
+    ROOT / ".github/labels.json",
+    ROOT / ".github/workflows/release.yml",
+    ROOT / ".github/workflows/repository-maintenance.yml",
+    ROOT / ".github/workflows/validate.yml",
     ROOT / "README.md",
     ROOT / "LICENSE",
     ROOT / "NOTICE.md",
     ROOT / "metadata.yaml",
     ROOT / "AGENTS.md",
     ROOT / "CONTRIBUTING.md",
+    ROOT / "GOVERNANCE.md",
     ROOT / "SECURITY.md",
     ROOT / "CHANGELOG.md",
     ROOT / "docs/standards-and-roadmap.md",
@@ -45,6 +50,13 @@ def read_json(path: Path):
         fail(f"invalid JSON in {path.relative_to(ROOT)}: {exc}")
 
 
+def require_match(pattern: str, text: str, label: str) -> str:
+    match = re.search(pattern, text, re.MULTILINE)
+    if not match:
+        fail(f"could not resolve {label}")
+    return match.group(1)
+
+
 def main() -> None:
     missing = [str(path.relative_to(ROOT)) for path in REQUIRED if not path.is_file()]
     if missing:
@@ -52,6 +64,28 @@ def main() -> None:
 
     if (ROOT / "SKILL.md").exists():
         fail("root SKILL.md must not duplicate the canonical skill")
+
+    metadata_text = (ROOT / "metadata.yaml").read_text(encoding="utf-8")
+    version = require_match(
+        r'^version:\s*["\']?([0-9]+\.[0-9]+\.[0-9]+)["\']?\s*$',
+        metadata_text,
+        "semantic version from metadata.yaml",
+    )
+
+    for required in (
+        "origin: https://github.com/ghspain/github-build-or-reuse",
+        "origin_path: skills/github-build-or-reuse",
+    ):
+        if required not in metadata_text:
+            fail(f"metadata.yaml missing {required}")
+
+    release_notes = ROOT / "docs" / "releases" / f"v{version}.md"
+    if not release_notes.is_file():
+        fail(f"missing release notes for v{version}: {release_notes.relative_to(ROOT)}")
+
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    if not re.search(rf"^## \[{re.escape(version)}\](?:\s|$)", changelog, re.MULTILINE):
+        fail(f"CHANGELOG.md has no section for {version}")
 
     skill_text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     if not skill_text.startswith("---\n"):
@@ -75,6 +109,14 @@ def main() -> None:
     if not re.search(r'^compatibility:\s*"[^"]+"\s*$', frontmatter, re.MULTILINE):
         fail("compatibility must be present and quoted")
 
+    skill_version = require_match(
+        r'^\s{2}version:\s*["\']([^"\']+)["\']\s*$',
+        frontmatter,
+        "skill version from SKILL.md metadata",
+    )
+    if skill_version != version:
+        fail(f"SKILL.md version {skill_version} does not match repository version {version}")
+
     for token in ("USE", "CONTRIBUTE", "FORK", "BUILD"):
         if token not in skill_text:
             fail(f"SKILL.md must preserve decision token {token}")
@@ -84,13 +126,19 @@ def main() -> None:
         fail("plugin name must be github-build-or-reuse")
     if plugin.get("skills") != "./skills/":
         fail("plugin must point skills to ./skills/")
-    if plugin.get("version") != "1.1.0":
-        fail("plugin version must be 1.1.0")
+    if plugin.get("version") != version:
+        fail(f"plugin version {plugin.get('version')!r} does not match repository version {version}")
 
     marketplace = read_json(ROOT / ".agents/plugins/marketplace.json")
     entries = marketplace.get("plugins", [])
     if not any(item.get("name") == "github-build-or-reuse" for item in entries):
         fail("marketplace must expose github-build-or-reuse")
+
+    labels = read_json(ROOT / ".github/labels.json")
+    label_names = {item.get("name") for item in labels}
+    for required_label in ("bug", "enhancement", "decision-quality", "triggering", "packaging", "security"):
+        if required_label not in label_names:
+            fail(f"labels.json missing required label {required_label}")
 
     evals = read_json(SKILL / "evals/evals.json")
     if evals.get("skill_name") != "github-build-or-reuse" or len(evals.get("evals", [])) < 3:
@@ -101,16 +149,7 @@ def main() -> None:
     if not any(item.get("should_trigger") is False for item in queries):
         fail("trigger evals need negative examples")
 
-    metadata = (ROOT / "metadata.yaml").read_text(encoding="utf-8")
-    for required in (
-        "origin: https://github.com/ghspain/github-build-or-reuse",
-        "origin_path: skills/github-build-or-reuse",
-        "version: 1.1.0",
-    ):
-        if required not in metadata:
-            fail(f"metadata.yaml missing {required}")
-
-    print("OK: github-build-or-reuse repository structure is valid")
+    print(f"OK: github-build-or-reuse v{version} repository structure is valid")
 
 
 if __name__ == "__main__":
