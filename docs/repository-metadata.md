@@ -1,14 +1,21 @@
-# Suggested GitHub repository metadata
+# GitHub repository metadata
 
-Use this when repository settings are edited in GitHub.
+Most repository metadata lives outside Git, but this project keeps its desired state documented and reproducible.
+
+Apply the settings from an authenticated GitHub CLI session with repository `Administration: write`:
+
+```bash
+./scripts/configure-repository-settings.sh
+```
 
 ## Description
 
-> Agent skill and ChatGPT/Codex plugin that searches GitHub before you build and decides USE, CONTRIBUTE, FORK, or BUILD.
+> Agent Skill and ChatGPT/Codex plugin that searches before you build and decides USE, CONTRIBUTE, FORK, or BUILD.
 
 ## Topics
 
 - `agent-skills`
+- `skills-sh`
 - `ai-agents`
 - `github`
 - `open-source`
@@ -19,10 +26,9 @@ Use this when repository settings are edited in GitHub.
 - `chatgpt`
 - `github-copilot`
 - `claude-code`
-- `developer-tools`
 - `github-cli`
 - `software-architecture`
-- `vibe-coding`
-- `mcp`
 
-The title and README already contain the strongest search terms naturally. Avoid keyword stuffing the description or README; repository topics are the better place for secondary discovery terms.
+The repository deliberately does not use `mcp` as a discovery topic because it does not ship an MCP server today. The title and README already contain the strongest search terms naturally; topics should describe actual capabilities rather than keyword-stuff the repository.
+
+The script also keeps GitHub's native `delete branch on merge` setting enabled. The cleanup workflow remains defense in depth for stale branches.
