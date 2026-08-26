@@ -4,7 +4,7 @@
   "groupings": [
     {
       "title": "GitHub & Open Source",
-      "description": "Decide whether to use, contribute to, fork, or build before starting substantial implementation.",
+      "description": "Search before you build: discover GitHub projects, verify evidence, and decide USE, CONTRIBUTE, FORK, or BUILD.",
       "skills": ["github-build-or-reuse"]
     }
   ]
