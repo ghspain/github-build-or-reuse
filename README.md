@@ -4,7 +4,6 @@
 
 [![Validate](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml/badge.svg)](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml)
 [![Release](https://img.shields.io/github/v/release/ghspain/github-build-or-reuse)](https://github.com/ghspain/github-build-or-reuse/releases)
-[![skills.sh](https://skills.sh/b/ghspain/github-build-or-reuse)](https://skills.sh/ghspain/github-build-or-reuse)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 AI coding agents have made greenfield software dramatically cheaper to produce. That makes a previously mundane engineering question more important, not less:
@@ -56,6 +55,8 @@ npx skills@latest add ghspain/github-build-or-reuse --skill github-build-or-reus
 ```
 
 The same source can be discovered through [skills.sh](https://skills.sh/). No special GitHub label or topic is required for CLI installation. `skills.sh` ranking is driven by anonymous install telemetry from the CLI; public search/index ingestion can lag behind a repository that already installs correctly.
+
+The README intentionally omits the repository badge until skills.sh resolves this project in its public index; otherwise its custom badge endpoint renders a misleading `not found` state even though CLI installation succeeds.
 
 ### GitHub CLI / GitHub Copilot
 
