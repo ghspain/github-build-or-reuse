@@ -1,11 +1,12 @@
-name: Repository maintenance
+name: Repository config
 
 on:
   push:
     branches: [main]
     paths:
       - .github/labels.json
-      - .github/workflows/repository-maintenance.yml
+      - .github/workflows/repository-config.yml
+      - scripts/configure-repository-settings.sh
   workflow_dispatch:
 
 permissions:
@@ -39,3 +40,19 @@ jobs:
                   "--force",
               ], check=True)
           PY
+
+  repository-settings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply administrative repository settings when authorized
+        env:
+          GH_TOKEN: ${{ secrets.REPOSITORY_ADMIN_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::notice::REPOSITORY_ADMIN_TOKEN is not configured; skipping administrative repository settings."
+            exit 0
+          fi
+          ./scripts/configure-repository-settings.sh "$GITHUB_REPOSITORY"
