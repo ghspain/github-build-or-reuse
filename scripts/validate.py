@@ -13,9 +13,7 @@ SKILL = ROOT / "skills" / "github-build-or-reuse"
 REQUIRED = [
     ROOT / ".codex-plugin/plugin.json",
     ROOT / ".agents/plugins/marketplace.json",
-    ROOT / ".github/labels.json",
     ROOT / ".github/workflows/release.yml",
-    ROOT / ".github/workflows/repository-config.yml",
     ROOT / ".github/workflows/validate.yml",
     ROOT / "README.md",
     ROOT / "LICENSE",
@@ -144,12 +142,6 @@ def main() -> None:
     }
     if "github-build-or-reuse" not in grouped_skills:
         fail("skills.sh.json must expose github-build-or-reuse")
-
-    labels = read_json(ROOT / ".github/labels.json")
-    label_names = {item.get("name") for item in labels}
-    for required_label in ("bug", "enhancement", "decision-quality", "triggering", "packaging", "security"):
-        if required_label not in label_names:
-            fail(f"labels.json missing required label {required_label}")
 
     evals = read_json(SKILL / "evals/evals.json")
     if evals.get("skill_name") != "github-build-or-reuse" or len(evals.get("evals", [])) < 3:
