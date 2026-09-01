@@ -1,7 +1,7 @@
 {
   "name": "github-build-or-reuse",
-  "version": "1.1.0",
-  "description": "Search existing GitHub and open-source projects before coding, then decide USE, CONTRIBUTE, FORK, or BUILD.",
+  "version": "1.2.0",
+  "description": "Search GitHub before you build, vet open-source alternatives, then decide USE, CONTRIBUTE, FORK, or BUILD.",
   "author": {
     "name": "GitHub Community Spain",
     "url": "https://github.com/ghspain"
@@ -12,19 +12,21 @@
   "keywords": [
     "github",
     "open-source",
+    "open-source-alternatives",
     "agent-skills",
-    "software-reuse",
-    "build-vs-buy",
-    "due-diligence",
-    "ai-agents",
+    "github-copilot",
     "codex",
-    "chatgpt"
+    "claude-code",
+    "ai-coding-agents",
+    "software-reuse",
+    "build-vs-open-source",
+    "due-diligence"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "GitHub Build or Reuse",
     "shortDescription": "Decide USE, CONTRIBUTE, FORK, or BUILD before coding",
-    "longDescription": "Search existing GitHub and open-source projects, verify functional fit, maintenance, security, licensing and governance, then choose the best reuse path before implementation.",
+    "longDescription": "Search existing GitHub and open-source projects, verify functional fit, maintenance, security, licensing, governance and adoption cost, then choose the best reuse path before implementation.",
     "developerName": "GitHub Community Spain",
     "category": "Productivity",
     "capabilities": ["Read"],

@@ -62,7 +62,7 @@ gh skill preview ghspain/github-build-or-reuse github-build-or-reuse
 gh skill install ghspain/github-build-or-reuse github-build-or-reuse
 
 # Reproducible release
-gh skill install ghspain/github-build-or-reuse github-build-or-reuse@v1.1.0
+gh skill install ghspain/github-build-or-reuse github-build-or-reuse@v1.2.0
 ```
 
 For long-lived environments, prefer a release tag or `--pin` so upstream changes cannot silently alter behavior.
@@ -70,7 +70,7 @@ For long-lived environments, prefer a release tag or `--pin` so upstream changes
 ### ChatGPT / Codex plugin
 
 ```bash
-codex plugin marketplace add ghspain/github-build-or-reuse --ref v1.1.0
+codex plugin marketplace add ghspain/github-build-or-reuse --ref v1.2.0
 ```
 
 Then open `/plugins`, choose the **GitHub Community Spain** marketplace and install **GitHub Build or Reuse**.
