@@ -21,22 +21,22 @@ Before an AI coding agent starts a substantial implementation, the skill:
 4. compares adoption/adaptation effort with greenfield ownership;
 5. returns one decision: **USE, CONTRIBUTE, FORK, or BUILD**.
 
-![GitHub Build or Reuse real evidence snapshot](assets/demo.svg)
+![GitHub Build or Reuse animated evidence demo](assets/demo.gif)
 
 This is a **dated public-repository evidence snapshot**, not a fictional benchmark. The scenario asks for a self-hosted AI presentation generator with editable PPTX, multiple LLM providers and an API. On **2026-09-01**, public GitHub metadata and README evidence for [`presenton/presenton`](https://github.com/presenton/presenton) supported those demo requirements and produced a **USE** verdict.
 
-The evidence source, visible SVG and terminal recording are generated from [`assets/demo.json`](assets/demo.json), so they cannot silently tell different stories.
+The evidence source, animated GIF, static SVG fallback and terminal recording are all derived from [`assets/demo.json`](assets/demo.json), so they cannot silently tell different stories.
 
 ```bash
 # Replay the terminal version
 asciinema play assets/demo.cast
 
-# Regenerate / verify the tracked assets
+# Regenerate / verify the tracked source assets
 python scripts/generate_demo.py
 python scripts/generate_demo.py --check
 ```
 
-The `Render README demo` workflow reuses the official [`asciinema/agg`](https://github.com/asciinema/agg) renderer to produce `assets/demo.gif` when the evidence source changes. See [`docs/demo.md`](docs/demo.md) for the refresh and rendering process.
+The `Render README demo` workflow reuses the official [`asciinema/agg`](https://github.com/asciinema/agg) renderer to regenerate `assets/demo.gif` when the evidence source changes. See [`docs/demo.md`](docs/demo.md) for the refresh and rendering process.
 
 ## Install
 
