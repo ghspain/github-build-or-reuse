@@ -14,6 +14,7 @@ REQUIRED = [
     ROOT / ".codex-plugin/plugin.json",
     ROOT / ".agents/plugins/marketplace.json",
     ROOT / ".github/workflows/release.yml",
+    ROOT / ".github/workflows/render-demo.yml",
     ROOT / ".github/workflows/validate.yml",
     ROOT / "README.md",
     ROOT / "LICENSE",
@@ -25,7 +26,12 @@ REQUIRED = [
     ROOT / "GOVERNANCE.md",
     ROOT / "SECURITY.md",
     ROOT / "CHANGELOG.md",
+    ROOT / "assets/demo.json",
+    ROOT / "assets/demo.svg",
+    ROOT / "assets/demo.cast",
+    ROOT / "docs/demo.md",
     ROOT / "docs/standards-and-roadmap.md",
+    ROOT / "scripts/generate_demo.py",
     SKILL / "SKILL.md",
     SKILL / "agents/openai.yaml",
     SKILL / "references/decision-framework.md",
@@ -142,6 +148,13 @@ def main() -> None:
     }
     if "github-build-or-reuse" not in grouped_skills:
         fail("skills.sh.json must expose github-build-or-reuse")
+
+    demo = read_json(ROOT / "assets/demo.json")
+    if demo.get("verdict") not in {"USE", "CONTRIBUTE", "FORK", "BUILD"}:
+        fail("assets/demo.json must use a supported verdict")
+    candidate = demo.get("candidate", {})
+    if not candidate.get("repository") or not candidate.get("verified_fit"):
+        fail("assets/demo.json must contain candidate repository and verified_fit evidence")
 
     evals = read_json(SKILL / "evals/evals.json")
     if evals.get("skill_name") != "github-build-or-reuse" or len(evals.get("evals", [])) < 3:
