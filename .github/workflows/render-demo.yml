@@ -1,0 +1,57 @@
+name: Render README demo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - assets/demo.json
+      - assets/demo.cast
+      - scripts/generate_demo.py
+      - .github/workflows/render-demo.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Regenerate deterministic source assets
+        run: python scripts/generate_demo.py
+
+      - name: Install pinned asciinema agg
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=v1.9.0
+          asset=agg-x86_64-unknown-linux-gnu
+          curl --fail --location --silent --show-error \
+            "https://github.com/asciinema/agg/releases/download/${version}/${asset}" \
+            --output /tmp/agg
+          echo "f111e315cd71056b116302342553dd765b7297579ed511f111d0cedb442aeda6  /tmp/agg" | sha256sum --check
+          chmod +x /tmp/agg
+          /tmp/agg --version
+
+      - name: Render GIF
+        run: /tmp/agg --theme github-dark --font-size 16 --speed 1.1 --idle-time-limit 1.5 assets/demo.cast assets/demo.gif
+
+      - name: Commit rendered asset when changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- assets/demo.svg assets/demo.cast assets/demo.gif; then
+            echo "README demo is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/demo.svg assets/demo.cast assets/demo.gif
+          git commit -m "docs: render README demo [skip ci]"
+          git push
