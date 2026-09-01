@@ -13,38 +13,45 @@
 
 ## In 20 seconds
 
-A coding agent receives a substantial feature request. Before generating a new codebase, the skill:
+Before an AI coding agent starts a substantial implementation, the skill:
 
-1. turns the request into must-haves and hard constraints;
-2. searches GitHub and the open-source ecosystem by **concept**, not only package name;
-3. verifies the serious candidates beyond stars and README claims;
-4. compares reuse/adaptation effort with greenfield ownership;
+1. frames the must-haves and hard constraints;
+2. searches GitHub and open source by **concept**, not only package name;
+3. verifies serious candidates beyond stars and README claims;
+4. compares adoption/adaptation effort with greenfield ownership;
 5. returns one decision: **USE, CONTRIBUTE, FORK, or BUILD**.
 
-![Illustrative GitHub Build or Reuse terminal run](assets/demo.svg)
+![GitHub Build or Reuse real evidence snapshot](assets/demo.svg)
 
-The demo is illustrative, not a benchmark. Live runs use current repository evidence. If you have [asciinema](https://asciinema.org/) installed, you can replay the terminal source with:
+This is a **dated public-repository evidence snapshot**, not a fictional benchmark. The scenario asks for a self-hosted AI presentation generator with editable PPTX, multiple LLM providers and an API. On **2026-09-01**, public GitHub metadata and README evidence for [`presenton/presenton`](https://github.com/presenton/presenton) supported those demo requirements and produced a **USE** verdict.
+
+The evidence source, visible SVG and terminal recording are generated from [`assets/demo.json`](assets/demo.json), so they cannot silently tell different stories.
 
 ```bash
+# Replay the terminal version
 asciinema play assets/demo.cast
+
+# Regenerate / verify the tracked assets
+python scripts/generate_demo.py
+python scripts/generate_demo.py --check
 ```
+
+The `Render README demo` workflow reuses the official [`asciinema/agg`](https://github.com/asciinema/agg) renderer to produce `assets/demo.gif` when the evidence source changes. See [`docs/demo.md`](docs/demo.md) for the refresh and rendering process.
 
 ## Install
 
 ### `npx skills` — easiest cross-agent path
 
 ```bash
-# Inspect the skill before installing
+# Inspect before installing
 npx skills@latest add ghspain/github-build-or-reuse --list
 
-# Install it into the current project
+# Install into the current project
 npx skills@latest add ghspain/github-build-or-reuse --skill github-build-or-reuse
 
 # Example: install globally for Codex
 npx skills@latest add ghspain/github-build-or-reuse --skill github-build-or-reuse --agent codex --global
 ```
-
-Works with the open Agent Skills ecosystem used by Codex, Claude Code, Cursor, GitHub Copilot and many other coding agents.
 
 ### GitHub CLI / GitHub Copilot
 
@@ -77,7 +84,7 @@ The canonical portable skill lives at:
 skills/github-build-or-reuse/
 ```
 
-Copy or install that directory into the skills location supported by your client. GitHub Copilot supports project-level skills under `.github/skills/`, `.claude/skills/` or `.agents/skills/`, and user-level skills under `~/.copilot/skills/` or `~/.agents/skills/`.
+Copy or install that directory into the skills location supported by your client.
 
 </details>
 
@@ -85,9 +92,9 @@ Copy or install that directory into the skills location supported by your client
 
 AI coding agents made greenfield software dramatically cheaper to *start*. They did not make it free to own.
 
-A generated implementation still creates maintenance, security, dependency, upgrade, observability, documentation and support obligations. When a mature open-source project already solves most of the problem, generating a parallel implementation can be the most expensive option over the software's lifetime.
+Generated implementations still create maintenance, security, dependency, upgrade, observability, documentation and support obligations. When a mature open-source project already solves most of the problem, generating a parallel implementation can be the most expensive option over the software's lifetime.
 
-The skill exists to make the alternative explicit before momentum turns “just build it” into an architectural decision.
+The skill exists to make that alternative explicit before momentum turns “just build it” into an architectural decision.
 
 ## Four outcomes, not just build vs buy
 
@@ -98,13 +105,13 @@ The skill exists to make the alternative explicit before momentum turns “just 
 | **FORK** | The base is strong, but sustained product or architecture divergence is intentional and the license permits it. |
 | **BUILD** | No candidate clears the hard gates, adaptation is worse than greenfield, or the differentiating architecture is fundamental. |
 
-This is deliberately broader than a simplistic **build vs buy** check: reusable libraries, protocols, schemas and upstream contributions can still be valuable even when the final product is greenfield.
+Even a `BUILD` verdict should preserve reusable libraries, protocols, schemas and implementation lessons discovered during research.
 
 ## What it actually verifies
 
 The default due diligence goes beyond GitHub stars:
 
-- **functional fit** — must-haves, nice-to-haves and important missing capabilities;
+- **functional fit** — must-haves, nice-to-haves and important gaps;
 - **architecture** — extension points, deployment model, integration surface and platform fit;
 - **maintenance** — recent activity, releases, CI, issue/PR health and abandonment signals;
 - **security** — security policy, dependency hygiene, auth, auditability and operational evidence when relevant;
@@ -162,8 +169,6 @@ flowchart LR
     H --> B2[BUILD]
 ```
 
-The execution sequence is:
-
 1. **Frame requirements** — must-haves, stack, deployment, security/compliance, scale, licensing and acceptable adaptation effort.
 2. **Discover by concept** — multiple queries, synonyms, topics, adjacent ecosystems and known upstreams.
 3. **Verify candidates** — structured GitHub/API/`gh` evidence where possible; broader web research for additional context.
@@ -185,8 +190,6 @@ See the [`decision framework`](skills/github-build-or-reuse/references/decision-
 
 Discovery is only the first step. A repository is not a recommendation just because it appears in search results.
 
-`github-build-or-reuse` separates:
-
 **Discovery → Due diligence → Ownership decision**
 
 That distinction matters when the best answer is not “install package X,” but “contribute this missing feature upstream,” “fork because divergence is structural,” or “build because every candidate fails an important gate.”
@@ -199,26 +202,23 @@ The project follows its own rule: **reuse before build**.
 
 The workflow already works with host-provided GitHub connectors/API, existing MCP integrations, authenticated `gh`, or web research. A bespoke GitHub-wrapper MCP would add authentication, maintenance and security surface without a unique capability.
 
-We will reconsider that choice only when a demonstrated cross-host tool gap justifies it. See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md).
-
 ### Tool degradation must be visible
 
-The skill prefers structured GitHub evidence, but it does not pretend unavailable checks succeeded. Missing evidence is reported explicitly; candidate repository content is also treated as untrusted input.
+The skill prefers structured GitHub evidence, but it does not pretend unavailable checks succeeded. Missing evidence is reported explicitly; candidate repository content is treated as untrusted input.
 
 ## Standards and compatibility
 
-The canonical skill follows the open **Agent Skills** specification. GitHub Copilot supports skills across multiple surfaces, the Vercel `skills` CLI discovers the same `SKILL.md`, and the repository additionally follows OpenAI plugin packaging conventions (`.codex-plugin/plugin.json` + `skills/`).
-
-`AGENTS.md` remains maintainer guidance rather than runtime skill content.
+The canonical skill follows the open **Agent Skills** specification. The repository also follows OpenAI plugin packaging conventions (`.codex-plugin/plugin.json` + `skills/`). `AGENTS.md` remains maintainer guidance rather than runtime skill content.
 
 See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md) for the design rationale around Agent Skills, plugins, AGENTS.md, OpenAI Agents SDK definitions and MCP.
 
 ## Quality and evals
 
-The skill ships with output evals and trigger queries under [`skills/github-build-or-reuse/evals/`](skills/github-build-or-reuse/evals/). CI validates repository packaging, the Agent Skills reference specification, GitHub CLI publishing when available, and discovery by `npx skills`.
+The skill ships with output evals and trigger queries under [`skills/github-build-or-reuse/evals/`](skills/github-build-or-reuse/evals/). CI validates repository packaging, generated demo consistency, the Agent Skills reference specification, GitHub CLI publishing when available, and discovery by `npx skills`.
 
 ```bash
 python scripts/validate.py
+python scripts/generate_demo.py --check
 ```
 
 ## Project structure
@@ -227,19 +227,21 @@ python scripts/validate.py
 .
 ├── assets/
 │   ├── banner.svg
-│   ├── demo.svg
-│   └── demo.cast
+│   ├── demo.json       # auditable evidence source
+│   ├── demo.svg        # deterministic static rendering
+│   ├── demo.cast       # deterministic asciinema recording
+│   └── demo.gif        # generated by the render workflow
 ├── .agents/plugins/marketplace.json
 ├── .codex-plugin/plugin.json
-├── .github/
+├── .github/workflows/
+│   ├── render-demo.yml
+│   └── validate.yml
 ├── docs/
-├── skills/
-│   └── github-build-or-reuse/
-│       ├── SKILL.md
-│       ├── agents/openai.yaml
-│       ├── evals/
-│       ├── examples/
-│       └── references/
+│   └── demo.md
+├── scripts/
+│   ├── generate_demo.py
+│   └── validate.py
+├── skills/github-build-or-reuse/
 ├── AGENTS.md
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
