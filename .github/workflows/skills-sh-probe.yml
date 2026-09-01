@@ -1,0 +1,44 @@
+name: Probe skills.sh indexing
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/skills-sh-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe search index and canonical pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          query='https://skills.sh/api/search?q=github-build-or-reuse&limit=20'
+          repo_page='https://skills.sh/ghspain/github-build-or-reuse'
+          skill_page='https://skills.sh/ghspain/github-build-or-reuse/github-build-or-reuse'
+
+          search_json="$(curl --fail --silent --show-error --location "$query")"
+          printf 'SEARCH_RESPONSE=%s\n' "$search_json"
+
+          repo_status="$(curl --silent --show-error --location --output /tmp/repo-page.html --write-out '%{http_code}' "$repo_page")"
+          skill_status="$(curl --silent --show-error --location --output /tmp/skill-page.html --write-out '%{http_code}' "$skill_page")"
+          echo "REPO_PAGE_HTTP=$repo_status"
+          echo "SKILL_PAGE_HTTP=$skill_status"
+
+          indexed=false
+          if printf '%s' "$search_json" | grep -q 'ghspain/github-build-or-reuse'; then
+            indexed=true
+          fi
+          echo "SEARCH_INDEXED=$indexed"
+
+          if [ "$skill_status" = '200' ]; then
+            grep -o '<title[^>]*>[^<]*' /tmp/skill-page.html | head -1 || true
+          fi
+
+          test "$indexed" = true
+          test "$skill_status" = '200'
