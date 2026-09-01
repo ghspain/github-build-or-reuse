@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "title": "AI presentation generator",
+  "request": "Build a self-hosted AI presentation generator with editable PPTX, multiple LLM providers and an API.",
+  "checked_at": "2026-09-01",
+  "source_example": "skills/github-build-or-reuse/examples/presentation-generator.md",
+  "candidate": {
+    "repository": "presenton/presenton",
+    "url": "https://github.com/presenton/presenton",
+    "license": "Apache-2.0",
+    "last_push": "2026-08-31",
+    "verified_fit": [
+      "self-hosted Docker deployment",
+      "fully editable PPTX export",
+      "multiple LLM providers",
+      "presentation-generation API"
+    ],
+    "display_fit": "Docker self-hosted · editable PPTX · multi-provider LLM · generation API",
+    "evidence": [
+      "GitHub repository metadata",
+      "repository README"
+    ]
+  },
+  "verdict": "USE",
+  "confidence": "high for this requirements snapshot",
+  "reason": "The candidate covers every demo must-have without requiring a parallel greenfield implementation.",
+  "next_action": "Run a small self-hosted PoC and verify the deployment/security requirements that matter to your environment.",
+  "note": "Evidence is a dated public-repository snapshot, not a benchmark or permanent endorsement."
+}
