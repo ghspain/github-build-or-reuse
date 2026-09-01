@@ -1,0 +1,10 @@
+{"version":2,"width":110,"height":24,"timestamp":1788291000,"env":{"SHELL":"/bin/bash","TERM":"xterm-256color"}}
+[0.2,"o","$ Ask: Add comment-triggered social publishing to this GitHub project.\r\n"]
+[1.0,"o","\r\n[FRAME] must-haves · stack · hosting · license · security constraints\r\n"]
+[1.8,"o","[DISCOVER] searching GitHub by concept, synonyms and adjacent projects...\r\n"]
+[2.8,"o","[VERIFY] checking license · releases · CI · issues/PRs · architecture · security\r\n"]
+[4.0,"o","[COMPARE] requirement fit + adaptation cost vs greenfield ownership\r\n"]
+[5.2,"o","\r\nVERDICT: CONTRIBUTE\r\n"]
+[5.6,"o","A strong upstream covers the core; the missing feature fits its scope.\r\n"]
+[6.2,"o","Next action: open a focused upstream issue / PoC before owning a fork.\r\n"]
+[7.1,"o","\r\n# Illustrative recording only; live runs use current GitHub evidence.\r\n"]

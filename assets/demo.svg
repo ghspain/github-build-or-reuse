@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub Build or Reuse example</title>
+  <desc id="desc">An illustrative terminal-style example showing a feature request, GitHub discovery, due diligence, and a contribute verdict.</desc>
+  <rect width="1200" height="520" rx="24" fill="#0d1117"/>
+  <rect x="0" y="0" width="1200" height="54" rx="24" fill="#161b22"/>
+  <circle cx="30" cy="27" r="7" fill="#ff7b72"/><circle cx="54" cy="27" r="7" fill="#d29922"/><circle cx="78" cy="27" r="7" fill="#3fb950"/>
+  <text x="600" y="34" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="17" fill="#8b949e">github-build-or-reuse · illustrative run</text>
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="21">
+    <text x="42" y="103" fill="#58a6ff">❯</text><text x="76" y="103" fill="#f0f6fc">Add comment-triggered social publishing to this GitHub project.</text>
+    <text x="42" y="151" fill="#8b949e">01</text><text x="86" y="151" fill="#d2a8ff">FRAME</text><text x="185" y="151" fill="#c9d1d9">must-haves · stack · hosting · license · security constraints</text>
+    <text x="42" y="195" fill="#8b949e">02</text><text x="86" y="195" fill="#79c0ff">DISCOVER</text><text x="210" y="195" fill="#c9d1d9">search GitHub by concept, synonyms and adjacent projects</text>
+    <text x="42" y="239" fill="#8b949e">03</text><text x="86" y="239" fill="#ffa657">VERIFY</text><text x="190" y="239" fill="#c9d1d9">license · releases · CI · issues/PRs · architecture · security</text>
+    <text x="42" y="283" fill="#8b949e">04</text><text x="86" y="283" fill="#a5d6ff">COMPARE</text><text x="202" y="283" fill="#c9d1d9">requirement fit + adaptation cost vs greenfield ownership</text>
+    <rect x="38" y="326" width="1124" height="118" rx="14" fill="#161b22" stroke="#30363d"/>
+    <text x="65" y="366" fill="#3fb950" font-weight="700">VERDICT: CONTRIBUTE</text>
+    <text x="65" y="401" fill="#f0f6fc">A strong upstream covers the core; the missing feature fits its scope.</text>
+    <text x="65" y="430" fill="#8b949e">Next reversible action → open a focused upstream issue / PoC before owning a fork.</text>
+    <text x="42" y="488" fill="#8b949e">Not a benchmark. The real skill names candidates and evidence from live repository research.</text>
+  </g>
+</svg>

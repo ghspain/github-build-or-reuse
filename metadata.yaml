@@ -13,9 +13,20 @@ tags:
   - github
   - open-source
   - agent-skills
+  - github-copilot
+  - codex
+  - claude-code
+  - ai-coding-agents
+  - github-search
+  - open-source-alternatives
   - due-diligence
+  - repository-due-diligence
   - software-architecture
   - software-reuse
+  - reuse-before-build
   - build-vs-buy
+  - build-vs-open-source
+  - dont-reinvent-the-wheel
 inspiration:
   - https://github.com/polmarza/github-repo-scout
+  - https://github.com/Emanuelel/dont-reinvent
