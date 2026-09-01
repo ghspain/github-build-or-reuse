@@ -18,12 +18,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          query='https://skills.sh/api/search?q=github-build-or-reuse&limit=20'
+          global_query='https://skills.sh/api/search?q=github-build-or-reuse&limit=200'
+          owner_query='https://skills.sh/api/search?q=github-build-or-reuse&owner=ghspain&limit=200'
+          semantic_query='https://skills.sh/api/search?q=open%20source%20alternatives%20agent%20skill&limit=200'
           repo_page='https://skills.sh/ghspain/github-build-or-reuse'
           skill_page='https://skills.sh/ghspain/github-build-or-reuse/github-build-or-reuse'
 
-          search_json="$(curl --fail --silent --show-error --location "$query")"
-          printf 'SEARCH_RESPONSE=%s\n' "$search_json"
+          global_json="$(curl --fail --silent --show-error --location "$global_query")"
+          owner_json="$(curl --fail --silent --show-error --location "$owner_query")"
+          semantic_json="$(curl --fail --silent --show-error --location "$semantic_query")"
+
+          printf 'GLOBAL_SEARCH_RESPONSE=%s\n' "$global_json"
+          printf 'OWNER_SEARCH_RESPONSE=%s\n' "$owner_json"
+          printf 'SEMANTIC_SEARCH_RESPONSE=%s\n' "$semantic_json"
 
           repo_status="$(curl --silent --show-error --location --output /tmp/repo-page.html --write-out '%{http_code}' "$repo_page")"
           skill_status="$(curl --silent --show-error --location --output /tmp/skill-page.html --write-out '%{http_code}' "$skill_page")"
@@ -31,14 +38,28 @@ jobs:
           echo "SKILL_PAGE_HTTP=$skill_status"
 
           indexed=false
-          if printf '%s' "$search_json" | grep -q 'ghspain/github-build-or-reuse'; then
+          globally_ranked=false
+          semantically_discoverable=false
+
+          if printf '%s' "$owner_json" | grep -q 'ghspain/github-build-or-reuse'; then
             indexed=true
           fi
+          if printf '%s' "$global_json" | grep -q 'ghspain/github-build-or-reuse'; then
+            globally_ranked=true
+          fi
+          if printf '%s' "$semantic_json" | grep -q 'ghspain/github-build-or-reuse'; then
+            semantically_discoverable=true
+          fi
+
           echo "SEARCH_INDEXED=$indexed"
+          echo "GLOBAL_EXACT_DISCOVERABLE=$globally_ranked"
+          echo "SEMANTIC_DISCOVERABLE=$semantically_discoverable"
 
           if [ "$skill_status" = '200' ]; then
             grep -o '<title[^>]*>[^<]*' /tmp/skill-page.html | head -1 || true
           fi
 
           test "$indexed" = true
+          test "$globally_ranked" = true
+          test "$semantically_discoverable" = true
           test "$skill_status" = '200'
