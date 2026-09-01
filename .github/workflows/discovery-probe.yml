@@ -22,6 +22,18 @@ jobs:
           echo '--- skills.sh result ---'
           cat /tmp/skills-find.txt
 
+      - name: Verify canonical skills.sh web page
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://skills.sh/ghspain/github-build-or-reuse/github-build-or-reuse'
+          status=$(curl -L -sS -o /tmp/skills-page.html -w '%{http_code}' "$url")
+          echo "skills.sh page status=$status"
+          test "$status" = '200'
+          grep -q 'github-build-or-reuse' /tmp/skills-page.html
+          grep -q 'ghspain/github-build-or-reuse' /tmp/skills-page.html
+          echo "skills.sh canonical page is live: $url"
+
       - name: Probe native GitHub metadata write with GITHUB_TOKEN
         env:
           GH_TOKEN: ${{ github.token }}
