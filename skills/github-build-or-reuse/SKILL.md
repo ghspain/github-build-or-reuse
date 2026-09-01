@@ -5,7 +5,7 @@ license: MIT
 compatibility: "Requires network access and a GitHub search/API/CLI or equivalent web research capability for live repository due diligence."
 metadata:
   author: "GitHub Community Spain"
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # GitHub Build or Reuse
