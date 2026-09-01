@@ -4,6 +4,8 @@ All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-01
+
 ### Added
 
 - `npx skills` / skills.sh installation and discovery documentation.
@@ -13,11 +15,20 @@ All notable changes to this project will be documented here.
 - Evidence-backed README demo with a dated public-repository snapshot in `assets/demo.json`.
 - Dependency-free demo generator that deterministically produces the README SVG and Asciinema recording from one source of truth.
 - CI drift detection for generated demo assets and an animated-GIF rendering workflow that reuses a pinned, checksum-verified `asciinema/agg` release.
+- Original README banner and animated terminal demo focused on the reuse decision flow.
 
 ### Changed
 
+- Broadened skill activation so common already-solved capabilities such as auth, payments, scraping, browser automation, notifications, search/RAG, observability, GitHub automation, media processing, queues, schedulers, rate limiting and workflow engines trigger discovery earlier.
+- Added explicit rules to perform available due diligence for the user and never silently present degraded verification as equivalent evidence.
+- Improved README product positioning, search-oriented language, examples, prompts and installation paths after reviewing related open-source work.
+- Expanded repository/plugin discovery metadata around Agent Skills, GitHub Copilot, Codex, Claude Code, open-source alternatives and build-vs-open-source decisions.
 - Repository validation now derives the authoritative semantic version from `metadata.yaml` and verifies consistency across the canonical skill, plugin manifest, changelog, release notes, lifecycle files, labels and evals instead of hardcoding a release number.
 - README demo now uses the existing AI presentation-generator scenario and real public evidence instead of an illustrative fictional result.
+
+### Fixed
+
+- Animated demo rendering now stages generated assets before checking for changes, so a newly created GIF is committed instead of being missed as an untracked file.
 
 ## [1.1.0] - 2026-08-25
 
