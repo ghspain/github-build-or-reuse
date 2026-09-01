@@ -1,164 +1,221 @@
+![GitHub Build or Reuse — search GitHub before building from scratch](assets/banner.svg)
+
 # GitHub Build or Reuse
 
-**Search before you build.** A portable Agent Skill and ChatGPT/Codex plugin that researches existing GitHub and open-source projects before substantial implementation, then recommends one path: **USE, CONTRIBUTE, FORK, or BUILD**.
+**Don't reinvent the wheel with AI-generated code. Search GitHub first, vet the best open-source options, then decide whether to USE, CONTRIBUTE, FORK, or BUILD.**
+
+`github-build-or-reuse` is a portable **Agent Skill for GitHub Copilot, Codex, Claude Code, Cursor and other Agent Skills-compatible coding agents**. It turns “has somebody already built this?” into a repeatable engineering gate before substantial implementation.
 
 [![Validate](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml/badge.svg)](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml)
 [![Release](https://img.shields.io/github/v/release/ghspain/github-build-or-reuse)](https://github.com/ghspain/github-build-or-reuse/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Agent Skill](https://img.shields.io/badge/Agent%20Skill-portable-1f6feb)](skills/github-build-or-reuse/SKILL.md)
 
-AI coding agents have made greenfield software dramatically cheaper to produce. That makes a previously mundane engineering question more important, not less:
+## In 20 seconds
 
-> **Does this need to be built at all?**
+A coding agent receives a substantial feature request. Before generating a new codebase, the skill:
 
-`github-build-or-reuse` turns that question into a repeatable pre-build gate. It searches by product concept rather than exact package name, verifies serious candidates, compares adoption with greenfield effort, and makes the reuse decision explicit.
+1. turns the request into must-haves and hard constraints;
+2. searches GitHub and the open-source ecosystem by **concept**, not only package name;
+3. verifies the serious candidates beyond stars and README claims;
+4. compares reuse/adaptation effort with greenfield ownership;
+5. returns one decision: **USE, CONTRIBUTE, FORK, or BUILD**.
 
-## The four outcomes
+![Illustrative GitHub Build or Reuse terminal run](assets/demo.svg)
 
-| Decision | Meaning |
-| --- | --- |
-| **USE** | Adopt an existing project because it already clears the important requirements and risk gates. |
-| **CONTRIBUTE** | Use a strong upstream and add the missing capability there rather than creating a parallel implementation. |
-| **FORK** | Reuse a strong base but deliberately own sustained divergence, upgrades and security. |
-| **BUILD** | Start greenfield because no candidate clears the hard gates or adaptation would replace the core anyway. |
+The demo is illustrative, not a benchmark. Live runs use current repository evidence. If you have [asciinema](https://asciinema.org/) installed, you can replay the terminal source with:
 
-Even `BUILD` should preserve reusable libraries, protocols, schemas and implementation lessons discovered during research.
-
-## What it checks
-
-The default due diligence goes beyond stars and README claims:
-
-- functional requirement coverage;
-- architecture, extension points and deployment fit;
-- recent maintenance, releases, CI and issue/PR health;
-- security policy, dependency hygiene, auth, auditability and observability when relevant;
-- license and governance constraints;
-- maintainer concentration and contribution sustainability;
-- adoption, migration and long-term fork cost.
-
-Hard gates override popularity and numeric scoring. Unknown evidence stays **unknown**.
+```bash
+asciinema play assets/demo.cast
+```
 
 ## Install
 
 ### `npx skills` — easiest cross-agent path
 
-The open `skills` CLI discovers this repository directly and can install the skill into many supported agents:
-
 ```bash
-# Inspect what the repository exposes
+# Inspect the skill before installing
 npx skills@latest add ghspain/github-build-or-reuse --list
 
-# Install this skill
+# Install it into the current project
 npx skills@latest add ghspain/github-build-or-reuse --skill github-build-or-reuse
 
 # Example: install globally for Codex
 npx skills@latest add ghspain/github-build-or-reuse --skill github-build-or-reuse --agent codex --global
 ```
 
-The same source can be discovered through [skills.sh](https://skills.sh/). No special GitHub label or topic is required for CLI installation. `skills.sh` ranking is driven by anonymous install telemetry from the CLI; public search/index ingestion can lag behind a repository that already installs correctly.
-
-The README intentionally omits the repository badge until skills.sh resolves this project in its public index; otherwise its custom badge endpoint renders a misleading `not found` state even though CLI installation succeeds.
+Works with the open Agent Skills ecosystem used by Codex, Claude Code, Cursor, GitHub Copilot and many other coding agents.
 
 ### GitHub CLI / GitHub Copilot
 
 GitHub CLI **2.90.0+** can preview, install and update Agent Skills directly from GitHub repositories:
 
 ```bash
-# Inspect before installing
 gh skill preview ghspain/github-build-or-reuse github-build-or-reuse
-
-# Install the current version
 gh skill install ghspain/github-build-or-reuse github-build-or-reuse
 
-# Or install a reproducible release
+# Reproducible release
 gh skill install ghspain/github-build-or-reuse github-build-or-reuse@v1.1.0
-
-# Later, check/update an unpinned installation
-gh skill update github-build-or-reuse
 ```
 
-For a long-lived environment, prefer a release tag or `--pin` so an upstream update cannot silently change behavior. GitHub Copilot supports Agent Skills in the cloud agent, code review, Copilot CLI, the Copilot app and agent mode in supported IDEs. `gh skill` can also target another supported agent host and scope; inspect `gh skill install --help` for the hosts available in your current CLI.
+For long-lived environments, prefer a release tag or `--pin` so upstream changes cannot silently alter behavior.
 
 ### ChatGPT / Codex plugin
-
-This repository is also packaged as an OpenAI plugin. For the stable release in Codex CLI:
 
 ```bash
 codex plugin marketplace add ghspain/github-build-or-reuse --ref v1.1.0
 ```
 
-Use `--ref main` only when you intentionally want the latest development version. Then open `/plugins`, choose the **GitHub Community Spain** marketplace, install **GitHub Build or Reuse**, and start a new session. OpenAI plugins can bundle skills and MCP tools; this plugin intentionally bundles only the portable skill today.
+Then open `/plugins`, choose the **GitHub Community Spain** marketplace and install **GitHub Build or Reuse**.
 
-### Skill-only install for Agent Skills-compatible clients
+<details>
+<summary><strong>Other Agent Skills-compatible clients</strong></summary>
 
-The canonical portable skill is:
+The canonical portable skill lives at:
 
 ```text
 skills/github-build-or-reuse/
 ```
 
-Copy or install that directory into the skill location supported by your client. Common project/user locations include `.agents/skills/` and `~/.agents/skills/`; GitHub Copilot also supports `.github/skills/` and `~/.copilot/skills/`.
+Copy or install that directory into the skills location supported by your client. GitHub Copilot supports project-level skills under `.github/skills/`, `.claude/skills/` or `.agents/skills/`, and user-level skills under `~/.copilot/skills/` or `~/.agents/skills/`.
 
-For Claude Code, GitHub CLI can install a compatible skill directly for that host, for example:
+</details>
 
-```bash
-gh skill install ghspain/github-build-or-reuse github-build-or-reuse@v1.1.0 --agent claude-code --scope user
-```
+## Why search before you build?
 
-## Use
+AI coding agents made greenfield software dramatically cheaper to *start*. They did not make it free to own.
 
-You do not need a magic phrase. The skill description is designed to activate on substantial new-app/tool/feature decisions and open-source alternative searches. You can also invoke it explicitly:
+A generated implementation still creates maintenance, security, dependency, upgrade, observability, documentation and support obligations. When a mature open-source project already solves most of the problem, generating a parallel implementation can be the most expensive option over the software's lifetime.
+
+The skill exists to make the alternative explicit before momentum turns “just build it” into an architectural decision.
+
+## Four outcomes, not just build vs buy
+
+| Decision | Choose it when |
+| --- | --- |
+| **USE** | An existing open-source project covers the important requirements and clears the risk gates. |
+| **CONTRIBUTE** | A strong upstream exists and the missing capability belongs there. Improve the ecosystem instead of creating a parallel project. |
+| **FORK** | The base is strong, but sustained product or architecture divergence is intentional and the license permits it. |
+| **BUILD** | No candidate clears the hard gates, adaptation is worse than greenfield, or the differentiating architecture is fundamental. |
+
+This is deliberately broader than a simplistic **build vs buy** check: reusable libraries, protocols, schemas and upstream contributions can still be valuable even when the final product is greenfield.
+
+## What it actually verifies
+
+The default due diligence goes beyond GitHub stars:
+
+- **functional fit** — must-haves, nice-to-haves and important missing capabilities;
+- **architecture** — extension points, deployment model, integration surface and platform fit;
+- **maintenance** — recent activity, releases, CI, issue/PR health and abandonment signals;
+- **security** — security policy, dependency hygiene, auth, auditability and operational evidence when relevant;
+- **license and governance** — license compatibility, contribution model and ownership constraints;
+- **project health** — maintainer concentration, contribution sustainability and release discipline;
+- **adoption cost** — migration, customization, upgrades and long-term fork ownership.
+
+Hard gates override popularity and numeric scoring. Evidence that cannot be verified stays **unknown** instead of being guessed.
+
+## When the skill should trigger
+
+Use it before implementing a non-trivial capability that could plausibly already exist, including:
+
+- authentication, authorization and identity;
+- payments and billing;
+- web scraping and browser automation;
+- notifications, email and messaging;
+- search, indexing and RAG infrastructure;
+- observability, audit, logging and monitoring;
+- GitHub automation, bots and developer tooling;
+- media processing, image/video generation or transcription;
+- schedulers, queues, rate limiting and workflow engines;
+- substantial plugins, libraries, services and new applications.
+
+It also triggers when you explicitly ask for **GitHub alternatives**, **open-source alternatives**, a **repository comparison**, or whether to **adopt, contribute, fork or rebuild** an existing project.
+
+Tiny throwaway scripts and mechanical edits intentionally do not require a full repository due-diligence cycle.
+
+## Example prompts
 
 > Before building this self-hosted service, search GitHub and decide whether we should USE, CONTRIBUTE, FORK, or BUILD.
 
-Other useful prompts:
+> Find mature open-source alternatives for this feature. Check license, maintenance, security signals and architecture before recommending one.
 
-- “Is there already an open-source project that covers most of this?”
-- “Compare these two repositories as a base for our product.”
-- “Could we contribute the missing feature upstream instead of maintaining a fork?”
-- “Prove that greenfield is the better option before we start generating code.”
+> Compare these repositories as the foundation for our product. Include what we would have to maintain ourselves.
 
-Tiny throwaway scripts and mechanical edits intentionally do **not** require a full repository due-diligence cycle.
+> Could we contribute the missing capability upstream instead of maintaining our own fork?
+
+> Prove that greenfield is the better choice before generating the implementation.
 
 ## How it works
 
-1. **Frame requirements** — must-haves, constraints, deployment, security, licensing and acceptable adaptation effort.
-2. **Discover by concept** — multiple queries, synonyms, alternatives, topics and adjacent ecosystems.
-3. **Verify candidates** — structured GitHub/API/`gh` evidence where possible; web research as fallback/context.
-4. **Apply hard gates** — functional, license, security, platform, maintenance and governance.
-5. **Score fit** — functional fit carries the most weight; stars never decide the result.
-6. **Compare reuse vs greenfield** — include migration, extension and long-term ownership cost.
-7. **Choose one path** — USE, CONTRIBUTE, FORK or BUILD, with confidence and the smallest reversible next action.
+```mermaid
+flowchart LR
+    A[Feature or product request] --> B[Frame requirements]
+    B --> C[Discover by concept]
+    C --> D[Verify serious candidates]
+    D --> E{Hard gates pass?}
+    E -- yes --> F[Compare fit + adoption cost]
+    E -- no --> G[Reject / reference only]
+    F --> H{Best ownership model}
+    H --> U[USE]
+    H --> C2[CONTRIBUTE]
+    H --> K[FORK]
+    H --> B2[BUILD]
+```
 
-See the [`decision framework`](skills/github-build-or-reuse/references/decision-framework.md) and the [`GitHub evidence playbook`](skills/github-build-or-reuse/references/github-evidence.md).
+The execution sequence is:
+
+1. **Frame requirements** — must-haves, stack, deployment, security/compliance, scale, licensing and acceptable adaptation effort.
+2. **Discover by concept** — multiple queries, synonyms, topics, adjacent ecosystems and known upstreams.
+3. **Verify candidates** — structured GitHub/API/`gh` evidence where possible; broader web research for additional context.
+4. **Apply hard gates** — functional, license, security, platform, maintenance and governance constraints.
+5. **Compare ownership cost** — reuse/adaptation versus greenfield, including long-term upgrades and operations.
+6. **Choose one path** — USE, CONTRIBUTE, FORK or BUILD, with confidence, evidence gaps and the smallest reversible next action.
+
+See the [`decision framework`](skills/github-build-or-reuse/references/decision-framework.md) and [`GitHub evidence playbook`](skills/github-build-or-reuse/references/github-evidence.md).
 
 ## Due-diligence depth
 
-- **Quick** — concept search, license, archive/activity and README-level fit for low-cost experiments.
-- **Standard** — adds releases, tests/CI, security policy, issues/PRs, architecture and contribution health. Default for a real adoption decision.
-- **Deep** — adds code/dependency inspection, maintainer concentration, security history, PoC/benchmarks and upgrade/migration risk for strategic adoption.
+| Depth | Best for | Adds |
+| --- | --- | --- |
+| **Quick** | Low-cost experiments | concept search, license, archive/activity and README-level fit |
+| **Standard** | Real adoption decisions | releases, CI/tests, security policy, issues/PRs, architecture and contribution health |
+| **Deep** | Strategic dependencies | code/dependency inspection, maintainer concentration, security history, PoCs/benchmarks and migration risk |
 
-## Why there is no bundled MCP server
+## How this differs from “find me a GitHub repo”
 
-Because the project follows its own rule: **reuse before build**.
+Discovery is only the first step. A repository is not a recommendation just because it appears in search results.
 
-The workflow already works with host-provided GitHub connectors/API, existing MCP integrations, authenticated `gh`, or web research. A bespoke MCP server that simply wraps GitHub would add authentication, maintenance and security surface without adding a unique capability.
+`github-build-or-reuse` separates:
 
-We will reconsider MCP when there is a demonstrated cross-host tool gap or a need for server-side aggregation/policy. See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md).
+**Discovery → Due diligence → Ownership decision**
+
+That distinction matters when the best answer is not “install package X,” but “contribute this missing feature upstream,” “fork because divergence is structural,” or “build because every candidate fails an important gate.”
+
+## Design choices
+
+### No mandatory custom MCP server
+
+The project follows its own rule: **reuse before build**.
+
+The workflow already works with host-provided GitHub connectors/API, existing MCP integrations, authenticated `gh`, or web research. A bespoke GitHub-wrapper MCP would add authentication, maintenance and security surface without a unique capability.
+
+We will reconsider that choice only when a demonstrated cross-host tool gap justifies it. See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md).
+
+### Tool degradation must be visible
+
+The skill prefers structured GitHub evidence, but it does not pretend unavailable checks succeeded. Missing evidence is reported explicitly; candidate repository content is also treated as untrusted input.
 
 ## Standards and compatibility
 
-The canonical skill follows the open **Agent Skills** specification. GitHub Copilot supports that standard across multiple surfaces, the Vercel `skills` CLI discovers the same `SKILL.md`, and the repository additionally follows OpenAI's plugin packaging conventions (`.codex-plugin/plugin.json` + `skills/`). `AGENTS.md` remains project-maintainer guidance rather than runtime skill content.
+The canonical skill follows the open **Agent Skills** specification. GitHub Copilot supports skills across multiple surfaces, the Vercel `skills` CLI discovers the same `SKILL.md`, and the repository additionally follows OpenAI plugin packaging conventions (`.codex-plugin/plugin.json` + `skills/`).
 
-See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md) for the reasoning behind Agent Skills, plugins, AGENTS.md, OpenAI Agents SDK definitions and MCP.
+`AGENTS.md` remains maintainer guidance rather than runtime skill content.
+
+See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md) for the design rationale around Agent Skills, plugins, AGENTS.md, OpenAI Agents SDK definitions and MCP.
 
 ## Quality and evals
 
-The skill ships with output evals and trigger queries under [`skills/github-build-or-reuse/evals/`](skills/github-build-or-reuse/evals/). CI validates:
-
-- repository packaging;
-- the Agent Skills reference specification;
-- GitHub CLI publishing with `gh skill publish --dry-run` when available;
-- discovery by `npx skills@latest add . --list` with telemetry disabled.
+The skill ships with output evals and trigger queries under [`skills/github-build-or-reuse/evals/`](skills/github-build-or-reuse/evals/). CI validates repository packaging, the Agent Skills reference specification, GitHub CLI publishing when available, and discovery by `npx skills`.
 
 ```bash
 python scripts/validate.py
@@ -168,14 +225,14 @@ python scripts/validate.py
 
 ```text
 .
+├── assets/
+│   ├── banner.svg
+│   ├── demo.svg
+│   └── demo.cast
 ├── .agents/plugins/marketplace.json
 ├── .codex-plugin/plugin.json
 ├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   ├── labels.json
-│   └── workflows/
 ├── docs/
-│   └── releases/
 ├── skills/
 │   └── github-build-or-reuse/
 │       ├── SKILL.md
@@ -183,24 +240,29 @@ python scripts/validate.py
 │       ├── evals/
 │       ├── examples/
 │       └── references/
-├── skills.sh.json
 ├── AGENTS.md
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── GOVERNANCE.md
-├── LICENSE
-├── NOTICE.md
-├── README.md
-└── SECURITY.md
+├── SECURITY.md
+└── README.md
 ```
 
-## Inspiration
+## Inspiration and related work
 
-The project was prompted in part by [polmarza/github-repo-scout](https://github.com/polmarza/github-repo-scout), an MIT-licensed skill built around concept-level GitHub discovery, license filtering and repository freshness. `github-build-or-reuse` is an independent implementation that extends the idea into requirements, due diligence, enterprise/operational evidence and an explicit build-vs-reuse decision framework. See [`NOTICE.md`](NOTICE.md).
+This project was initially prompted in part by [`polmarza/github-repo-scout`](https://github.com/polmarza/github-repo-scout), an MIT-licensed skill centered on concept-level GitHub discovery, license filtering and repository freshness.
 
-## Contributing and governance
+We also recommend looking at [`Emanuelel/dont-reinvent`](https://github.com/Emanuelel/dont-reinvent), which frames the problem as **Open Source / Build / Buy** and does an excellent job of making the cost of unnecessary greenfield generation immediately visible. `github-build-or-reuse` takes a different path: it focuses more deeply on GitHub/open-source adoption strategy and makes **CONTRIBUTE** and **FORK** first-class outcomes alongside USE and BUILD.
 
-Issues and pull requests are welcome. Please keep the portable runtime behavior in the canonical skill and platform packaging at repository root; see [`CONTRIBUTING.md`](CONTRIBUTING.md), [`GOVERNANCE.md`](GOVERNANCE.md), and [`AGENTS.md`](AGENTS.md).
+The implementations are independent. Related projects are useful precisely because this repository's philosophy is to learn from existing work rather than pretend it does not exist.
+
+## Search keywords
+
+Agent Skills · GitHub Copilot skill · Codex skill · Claude Code skill · open-source alternatives · GitHub repository search · software reuse · build vs buy · build vs open source · don't reinvent the wheel · repository due diligence · open-source due diligence · GitHub automation · AI coding agents · software architecture · reuse before build.
+
+## Contributing
+
+Issues and pull requests are welcome, especially examples where the skill made the wrong reuse/build decision. See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`GOVERNANCE.md`](GOVERNANCE.md) and [`AGENTS.md`](AGENTS.md).
 
 ## License
 
