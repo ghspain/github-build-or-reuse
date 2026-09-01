@@ -1,12 +1,21 @@
 # Notices and acknowledgements
 
-This project was inspired in part by the idea demonstrated in **github-repo-scout** by Pol Marza:
+This project was inspired in part by ideas demonstrated by other open-source skills in the repository-discovery and build-vs-reuse space.
 
-- https://github.com/polmarza/github-repo-scout
+## github-repo-scout
+
+- Project: https://github.com/polmarza/github-repo-scout
 - License at the time of review: MIT
 
-The useful concepts observed there include searching GitHub by product concept rather than only exact package names, filtering by license, checking repository freshness, and returning a shortlist before starting from zero.
+Useful concepts observed there include searching GitHub by product concept rather than only exact package names, filtering by license, checking repository freshness, and returning a shortlist before starting from zero.
 
-`github-build-or-reuse` is an independent implementation and expands the workflow into requirements capture, structured due diligence, hard gates, enterprise/operational evidence, contribution/fork analysis, and an explicit `USE / CONTRIBUTE / FORK / BUILD` decision.
+## dont-reinvent
 
-No authorship or endorsement by the original project is implied.
+- Project: https://github.com/Emanuelel/dont-reinvent
+- License at the time of review: MIT
+
+Useful communication and workflow ideas observed there include making the “do not automatically build from scratch” problem explicit, strong trigger examples for common feature categories, visible degraded-verification handling, and presenting the workflow with an immediate visual demo.
+
+`github-build-or-reuse` is an independent implementation. Its decision model focuses on GitHub/open-source adoption and expands the outcome space into requirements capture, structured due diligence, hard gates, enterprise/operational evidence, contribution/fork analysis, and an explicit `USE / CONTRIBUTE / FORK / BUILD` decision.
+
+No code, artwork or demo assets from the referenced projects are included here, and no authorship or endorsement by those projects is implied.
