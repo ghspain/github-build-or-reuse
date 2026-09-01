@@ -10,10 +10,14 @@ All notable changes to this project will be documented here.
 - `skills.sh.json` catalog metadata.
 - CI coverage for Vercel `skills` CLI discovery with telemetry disabled.
 - Automatic cleanup of same-repository branches after merged pull requests.
+- Evidence-backed README demo with a dated public-repository snapshot in `assets/demo.json`.
+- Dependency-free demo generator that deterministically produces the README SVG and Asciinema recording from one source of truth.
+- CI drift detection for generated demo assets and an animated-GIF rendering workflow that reuses a pinned, checksum-verified `asciinema/agg` release.
 
 ### Changed
 
 - Repository validation now derives the authoritative semantic version from `metadata.yaml` and verifies consistency across the canonical skill, plugin manifest, changelog, release notes, lifecycle files, labels and evals instead of hardcoding a release number.
+- README demo now uses the existing AI presentation-generator scenario and real public evidence instead of an illustrative fictional result.
 
 ## [1.1.0] - 2026-08-25
 

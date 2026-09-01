@@ -20,6 +20,9 @@ jobs:
       - name: Validate repository packaging
         run: python scripts/validate.py
 
+      - name: Validate generated demo assets
+        run: python scripts/generate_demo.py --check
+
       - name: Validate Agent Skills specification
         run: |
           git clone --depth 1 https://github.com/agentskills/agentskills.git /tmp/agentskills
