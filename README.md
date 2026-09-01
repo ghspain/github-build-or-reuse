@@ -10,6 +10,7 @@
 [![Release](https://img.shields.io/github/v/release/ghspain/github-build-or-reuse)](https://github.com/ghspain/github-build-or-reuse/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Agent Skill](https://img.shields.io/badge/Agent%20Skill-portable-1f6feb)](skills/github-build-or-reuse/SKILL.md)
+[![skills.sh](https://skills.sh/b/ghspain/github-build-or-reuse)](https://skills.sh/ghspain/github-build-or-reuse/github-build-or-reuse)
 
 ## In 20 seconds
 
