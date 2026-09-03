@@ -4,7 +4,7 @@ origin_path: skills/github-build-or-reuse
 plugin_manifest: .codex-plugin/plugin.json
 category: github
 status: active
-version: 1.2.1
+version: 1.2.2
 sync:
   enabled: false
   interval: weekly
@@ -13,6 +13,7 @@ tags:
   - github
   - open-source
   - agent-skills
+  - agent-plugins
   - github-copilot
   - codex
   - claude-code
