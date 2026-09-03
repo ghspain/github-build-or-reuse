@@ -1,0 +1,28 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "github-build-or-reuse",
+  "version": "1.2.0",
+  "description": "Search GitHub before you build, vet open-source alternatives, then decide USE, CONTRIBUTE, FORK, or BUILD.",
+  "author": {
+    "name": "GitHub Community Spain",
+    "url": "https://github.com/ghspain"
+  },
+  "homepage": "https://github.com/ghspain/github-build-or-reuse",
+  "repository": "https://github.com/ghspain/github-build-or-reuse",
+  "license": "MIT",
+  "keywords": [
+    "github",
+    "open-source",
+    "open-source-alternatives",
+    "agent-skills",
+    "github-copilot",
+    "codex",
+    "claude-code",
+    "cursor",
+    "gemini-cli",
+    "ai-coding-agents",
+    "software-reuse",
+    "build-vs-open-source",
+    "due-diligence"
+  ]
+}

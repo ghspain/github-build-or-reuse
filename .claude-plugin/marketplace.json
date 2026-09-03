@@ -1,0 +1,16 @@
+{
+  "name": "github-build-or-reuse",
+  "description": "Search GitHub before you build, vet open-source alternatives, then decide USE, CONTRIBUTE, FORK, or BUILD.",
+  "owner": {
+    "name": "GitHub Community Spain",
+    "url": "https://github.com/ghspain"
+  },
+  "plugins": [
+    {
+      "name": "github-build-or-reuse",
+      "source": "./",
+      "description": "Search GitHub before you build, vet open-source alternatives, then decide USE, CONTRIBUTE, FORK, or BUILD.",
+      "version": "1.2.0"
+    }
+  ]
+}

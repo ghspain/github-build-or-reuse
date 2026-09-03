@@ -13,6 +13,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Probe search index and canonical pages
         shell: bash
@@ -40,25 +41,16 @@ jobs:
           indexed=false
           globally_ranked=false
           semantically_discoverable=false
-
-          if printf '%s' "$owner_json" | grep -q 'ghspain/github-build-or-reuse'; then
-            indexed=true
-          fi
-          if printf '%s' "$global_json" | grep -q 'ghspain/github-build-or-reuse'; then
-            globally_ranked=true
-          fi
-          if printf '%s' "$semantic_json" | grep -q 'ghspain/github-build-or-reuse'; then
-            semantically_discoverable=true
-          fi
+          if printf '%s' "$owner_json" | grep -q 'ghspain/github-build-or-reuse'; then indexed=true; fi
+          if printf '%s' "$global_json" | grep -q 'ghspain/github-build-or-reuse'; then globally_ranked=true; fi
+          if printf '%s' "$semantic_json" | grep -q 'ghspain/github-build-or-reuse'; then semantically_discoverable=true; fi
 
           echo "SEARCH_INDEXED=$indexed"
           echo "GLOBAL_EXACT_DISCOVERABLE=$globally_ranked"
           echo "SEMANTIC_DISCOVERABLE=$semantically_discoverable"
-
           if [ "$skill_status" = '200' ]; then
             grep -o '<title[^>]*>[^<]*' /tmp/skill-page.html | head -1 || true
           fi
-
           test "$indexed" = true
           test "$globally_ranked" = true
           test "$semantically_discoverable" = true
