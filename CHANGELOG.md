@@ -4,6 +4,23 @@ All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-09-03
+
+### Added
+
+- Deterministic cross-agent distribution generation for Agent Plugins, Codex, Claude Code, Cursor, and Gemini from one standalone packaging configuration.
+- Enforced GitHub Actions security baseline with immutable action SHAs, non-persisted checkout credentials, explicit permissions, job timeouts, and Dependabot coverage for Actions.
+- Canonical top-level Waza behavioral suite with deterministic `spec verify` validation and trusted model-backed execution evidence.
+
+### Changed
+
+- Moved intrinsic behavioral ownership from legacy skill-local JSON eval fixtures to the canonical Waza suite under `evals/github-build-or-reuse/`.
+- Updated packaging/standards documentation to reflect existing release automation and derived multi-agent manifests.
+
+### Compatibility
+
+- The runtime decision model and instructions are unchanged from 1.2.0; this patch release updates packaging, CI hardening, and behavioral evaluation infrastructure only.
+
 ## [1.2.0] - 2026-09-01
 
 ### Added
