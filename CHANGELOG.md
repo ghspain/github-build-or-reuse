@@ -4,6 +4,26 @@ All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-09-04
+
+### Added
+
+- Agent Plugins 1.0 / skills.sh coexistence validator that requires both distribution surfaces to expose the same canonical `github-build-or-reuse` skill.
+- ADR documenting Agent Plugins as a packaging layer over the existing Agent Skill rather than a migration away from Agent Skills or skills.sh.
+- Compatibility evidence matrix separating conformance/manifest compatibility, install/discovery verification and runtime verification.
+- `agent-plugins` discovery metadata across generated packaging surfaces.
+
+### Changed
+
+- CI now validates the portable Agent Plugin contract alongside the existing Agent Skills reference validation and `npx skills` discovery smoke test.
+- Repository guidance now treats the repository name, skill identity and `skills/github-build-or-reuse/SKILL.md` path as distribution invariants unless a deliberate migration is planned.
+- Standards documentation makes the no-custom-MCP decision explicit until a real capability gap is demonstrated.
+
+### Compatibility
+
+- The runtime decision model is unchanged from 1.2.1.
+- Existing skills.sh / `npx skills` discovery remains supported with the same repository, skill name, canonical path and `skills.sh.json` registration.
+
 ## [1.2.1] - 2026-09-03
 
 ### Added
