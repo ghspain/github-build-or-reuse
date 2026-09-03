@@ -1,0 +1,55 @@
+name: Behavioral Eval Static Validation
+
+on:
+  push:
+    paths:
+      - 'evals/**'
+      - 'skills/github-build-or-reuse/SKILL.md'
+      - 'scripts/validate-evals.py'
+      - 'scripts/install-waza-ci.sh'
+      - 'docs/evals.md'
+      - '.github/workflows/eval-static.yml'
+      - '.github/workflows/eval-behavioral.yml'
+  pull_request:
+    paths:
+      - 'evals/**'
+      - 'skills/github-build-or-reuse/SKILL.md'
+      - 'scripts/validate-evals.py'
+      - 'scripts/install-waza-ci.sh'
+      - 'docs/evals.md'
+      - '.github/workflows/eval-static.yml'
+      - '.github/workflows/eval-behavioral.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      WAZA_NO_UPDATE_CHECK: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install YAML parser
+        run: python -m pip install 'PyYAML>=6,<7'
+
+      - name: Validate intrinsic eval contract
+        run: python scripts/validate-evals.py
+
+      - name: Validate workflow security baseline
+        run: python scripts/validate-workflow-security.py
+
+      - name: Install pinned Waza
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/install-waza-ci.sh "$RUNNER_TEMP/waza"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      - name: Verify Waza spec without model calls
+        run: waza spec verify --skill skills/github-build-or-reuse --eval evals/github-build-or-reuse/eval.yaml --format github-actions

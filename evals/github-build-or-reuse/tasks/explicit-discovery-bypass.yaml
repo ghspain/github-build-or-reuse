@@ -1,0 +1,22 @@
+id: explicit-discovery-bypass
+name: Explicit discovery bypass is honored and disclosed
+inputs:
+  prompt: >-
+    I know alternatives may exist, but explicitly skip GitHub/open-source discovery for this
+    feature and just help me implement my chosen design.
+expected:
+  should_trigger: true
+  graders:
+    - type: trigger
+      name: activation
+      config:
+        skill_path: skills/github-build-or-reuse/SKILL.md
+        mode: positive
+        threshold: 0.6
+    - type: prompt
+      name: bypass_disclosed
+      config:
+        prompt: >-
+          Pass only if the response honors the explicit request to bypass discovery and clearly
+          states that reuse vetting was skipped. Fail if it claims due diligence occurred or
+          insists on a full repository search against the user's explicit instruction.
