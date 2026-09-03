@@ -4,12 +4,13 @@
 
 **Don't reinvent the wheel with AI-generated code. Search GitHub first, vet the best open-source options, then decide whether to USE, CONTRIBUTE, FORK, or BUILD.**
 
-`github-build-or-reuse` is a portable **Agent Skill for GitHub Copilot, Codex, Claude Code, Cursor and other Agent Skills-compatible coding agents**. It turns “has somebody already built this?” into a repeatable engineering gate before substantial implementation.
+`github-build-or-reuse` is a portable **Agent Skill and Agent Plugins 1.0 package for GitHub Copilot, Codex, Claude Code, Cursor and other compatible coding agents**. It turns “has somebody already built this?” into a repeatable engineering gate before substantial implementation.
 
 [![Validate](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml/badge.svg)](https://github.com/ghspain/github-build-or-reuse/actions/workflows/validate.yml)
 [![Release](https://img.shields.io/github/v/release/ghspain/github-build-or-reuse)](https://github.com/ghspain/github-build-or-reuse/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Agent Skill](https://img.shields.io/badge/Agent%20Skill-portable-1f6feb)](skills/github-build-or-reuse/SKILL.md)
+[![Agent Plugins 1.0](https://img.shields.io/badge/Agent%20Plugins-1.0-8250df)](plugin.json)
 [![skills.sh](https://skills.sh/b/ghspain/github-build-or-reuse)](https://skills.sh/ghspain/github-build-or-reuse/github-build-or-reuse)
 
 ## In 20 seconds
@@ -41,7 +42,9 @@ The `Render README demo` workflow reuses the official [`asciinema/agg`](https://
 
 ## Install
 
-### `npx skills` — easiest cross-agent path
+### `npx skills` / skills.sh — easiest cross-agent path
+
+This remains a first-class supported installation path. Agent Plugins adoption does **not** replace or relocate the canonical skill used by skills.sh.
 
 ```bash
 # Inspect before installing
@@ -54,6 +57,21 @@ npx skills@latest add ghspain/github-build-or-reuse --skill github-build-or-reus
 npx skills@latest add ghspain/github-build-or-reuse --skill github-build-or-reuse --agent codex --global
 ```
 
+### Agent Plugins 1.0
+
+The repository root is also a portable Agent Plugins 1.0 package:
+
+```text
+plugin.json
+skills/
+└── github-build-or-reuse/
+    └── SKILL.md
+```
+
+Agent Plugins discovers the **same** canonical skill from the fixed `skills/` directory that skills.sh uses. CI verifies that Agent Plugins discovery and `skills.sh.json` expose the same skill, so adding plugin packaging cannot silently drop the existing skills.sh path.
+
+Use the Agent Plugin installation mechanism supported by your client. Host-specific compatibility surfaces below are generated from the same canonical distribution state; they are not copies of the skill.
+
 ### GitHub CLI / GitHub Copilot
 
 GitHub CLI **2.90.0+** can preview, install and update Agent Skills directly from GitHub repositories:
@@ -63,7 +81,7 @@ gh skill preview ghspain/github-build-or-reuse github-build-or-reuse
 gh skill install ghspain/github-build-or-reuse github-build-or-reuse
 
 # Reproducible release
-gh skill install ghspain/github-build-or-reuse github-build-or-reuse@v1.2.0
+gh skill install ghspain/github-build-or-reuse github-build-or-reuse@v1.2.2
 ```
 
 For long-lived environments, prefer a release tag or `--pin` so upstream changes cannot silently alter behavior.
@@ -71,7 +89,7 @@ For long-lived environments, prefer a release tag or `--pin` so upstream changes
 ### ChatGPT / Codex plugin
 
 ```bash
-codex plugin marketplace add ghspain/github-build-or-reuse --ref v1.2.0
+codex plugin marketplace add ghspain/github-build-or-reuse --ref v1.2.2
 ```
 
 Then open `/plugins`, choose the **GitHub Community Spain** marketplace and install **GitHub Build or Reuse**.
@@ -88,6 +106,8 @@ skills/github-build-or-reuse/
 Copy or install that directory into the skills location supported by your client.
 
 </details>
+
+See [`docs/agent-plugin-compatibility.md`](docs/agent-plugin-compatibility.md) for the distribution invariants and evidence-based compatibility matrix.
 
 ## Why search before you build?
 
@@ -203,22 +223,26 @@ The project follows its own rule: **reuse before build**.
 
 The workflow already works with host-provided GitHub connectors/API, existing MCP integrations, authenticated `gh`, or web research. A bespoke GitHub-wrapper MCP would add authentication, maintenance and security surface without a unique capability.
 
+Agent Plugins 1.0 supports optional MCP packaging, but format support alone is not a reason to add a server.
+
 ### Tool degradation must be visible
 
 The skill prefers structured GitHub evidence, but it does not pretend unavailable checks succeeded. Missing evidence is reported explicitly; candidate repository content is treated as untrusted input.
 
 ## Standards and compatibility
 
-The canonical skill follows the open **Agent Skills** specification. The repository also follows OpenAI plugin packaging conventions (`.codex-plugin/plugin.json` + `skills/`). `AGENTS.md` remains maintainer guidance rather than runtime skill content.
+The canonical skill follows the open **Agent Skills** specification. The repository root also follows **Agent Plugins 1.0** (`plugin.json` + `skills/`) while preserving `skills.sh.json` and the existing skills.sh discovery path. Host-specific Codex, Claude Code, Cursor and Gemini manifests remain generated compatibility adapters. `AGENTS.md` remains maintainer guidance rather than runtime skill content.
 
-See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md) for the design rationale around Agent Skills, plugins, AGENTS.md, OpenAI Agents SDK definitions and MCP.
+See [`docs/standards-and-roadmap.md`](docs/standards-and-roadmap.md) and [`docs/agent-plugin-compatibility.md`](docs/agent-plugin-compatibility.md) for the design rationale, compatibility evidence and MCP decision.
 
 ## Quality and evals
 
-The skill ships with output evals and trigger queries under [`skills/github-build-or-reuse/evals/`](skills/github-build-or-reuse/evals/). CI validates repository packaging, generated demo consistency, the Agent Skills reference specification, GitHub CLI publishing when available, and discovery by `npx skills`.
+The skill ships with output evals and trigger queries under [`skills/github-build-or-reuse/evals/`](skills/github-build-or-reuse/evals/). CI validates repository packaging, Agent Plugins/skills.sh coexistence, generated demo consistency, the Agent Skills reference specification, GitHub CLI publishing when available, and discovery by `npx skills`.
 
 ```bash
 python scripts/validate.py
+python scripts/validate-agent-plugin.py
+python scripts/generate-distribution.py --check
 python scripts/generate_demo.py --check
 ```
 
@@ -232,16 +256,20 @@ python scripts/generate_demo.py --check
 │   ├── demo.svg        # deterministic static rendering
 │   ├── demo.cast       # deterministic asciinema recording
 │   └── demo.gif        # generated by the render workflow
+├── plugin.json         # portable Agent Plugins 1.0 manifest
+├── skills.sh.json      # skills.sh grouping/discovery metadata
 ├── .agents/plugins/marketplace.json
 ├── .codex-plugin/plugin.json
 ├── .github/workflows/
 │   ├── render-demo.yml
 │   └── validate.yml
 ├── docs/
+│   ├── agent-plugin-compatibility.md
 │   └── demo.md
 ├── scripts/
 │   ├── generate_demo.py
-│   └── validate.py
+│   ├── generate-distribution.py
+│   └── validate-agent-plugin.py
 ├── skills/github-build-or-reuse/
 ├── AGENTS.md
 ├── CHANGELOG.md
@@ -261,7 +289,7 @@ The implementations are independent. Related projects are useful precisely becau
 
 ## Search keywords
 
-Agent Skills · GitHub Copilot skill · Codex skill · Claude Code skill · open-source alternatives · GitHub repository search · software reuse · build vs buy · build vs open source · don't reinvent the wheel · repository due diligence · open-source due diligence · GitHub automation · AI coding agents · software architecture · reuse before build.
+Agent Plugins · Agent Skills · GitHub Copilot skill · Codex skill · Claude Code skill · open-source alternatives · GitHub repository search · software reuse · build vs buy · build vs open source · don't reinvent the wheel · repository due diligence · open-source due diligence · GitHub automation · AI coding agents · software architecture · reuse before build.
 
 ## Contributing
 
