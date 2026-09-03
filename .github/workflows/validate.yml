@@ -26,6 +26,9 @@ jobs:
       - name: Validate repository packaging
         run: python scripts/validate.py
 
+      - name: Validate Agent Plugin and skills.sh coexistence
+        run: python scripts/validate-agent-plugin.py
+
       - name: Validate generated cross-agent manifests
         run: python scripts/generate-distribution.py --check
 
