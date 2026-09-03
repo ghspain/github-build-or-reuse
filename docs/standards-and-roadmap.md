@@ -31,6 +31,18 @@ Tagged releases are already automated by `.github/workflows/release.yml`; README
 
 All repository workflows follow an enforced security baseline: external Actions are full-SHA pinned, checkout credentials do not persist, permissions are explicit, jobs have timeouts, and Dependabot tracks GitHub Actions updates.
 
+## External discovery
+
+### skills.sh Finder
+
+The canonical skills.sh detail page and legacy Finder entry are external distribution surfaces, not repository-owned indexes. Once the owner-scoped Finder returns `ghspain/github-build-or-reuse` with skill `github-build-or-reuse`, this repository treats catalog indexing as complete.
+
+Exact-name discoverability and capability/semantic discoverability are separate concerns. The current legacy `skills find` client calls `skills.sh/api/search`; upstream behavior is known to match skill identity/source much more reliably than `SKILL.md` description text. Consequently, adding keyword stuffing to this repository is not considered a valid workaround for semantic search gaps. Capability search improvements belong upstream; see `vercel-labs/skills#1761`.
+
+Repository metadata, README copy and skill frontmatter should still describe the capability clearly for GitHub search, web search, humans and future catalog implementations, but they must not be treated as proof that the current skills.sh Finder indexes description semantics.
+
+Temporary discovery probes should be removed after owner-scoped indexing and exact-name discoverability are stable. A permanent CI dependency on an external catalog's ranking behavior would be noisy and outside this repository's control.
+
 ## MCP decision
 
 ### Current verdict: do not bundle a custom MCP server
