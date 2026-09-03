@@ -1,0 +1,22 @@
+id: nontrivial-build-research-first
+name: Non-trivial build researches before implementation
+inputs:
+  prompt: >-
+    Build me a self-hosted AI presentation generator that exports editable PPTX files.
+    Start implementing it now.
+expected:
+  should_trigger: true
+  graders:
+    - type: trigger
+      name: activation
+      config:
+        skill_path: skills/github-build-or-reuse/SKILL.md
+        mode: positive
+        threshold: 0.6
+    - type: prompt
+      name: research_before_build
+      config:
+        prompt: >-
+          Pass only if the response performs or explicitly attempts open-source/GitHub due
+          diligence before substantial implementation and converges on one of USE, CONTRIBUTE,
+          FORK, or BUILD. Fail if it jumps straight into implementation.

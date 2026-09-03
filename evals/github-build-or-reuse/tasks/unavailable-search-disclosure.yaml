@@ -1,0 +1,22 @@
+id: unavailable-search-disclosure
+name: Search failure is disclosed rather than silently degraded
+inputs:
+  prompt: >-
+    Decide whether I should reuse an existing open-source notification service or build one,
+    but assume GitHub API, gh and web search are unavailable in this environment.
+expected:
+  should_trigger: true
+  graders:
+    - type: trigger
+      name: activation
+      config:
+        skill_path: skills/github-build-or-reuse/SKILL.md
+        mode: positive
+        threshold: 0.6
+    - type: prompt
+      name: evidence_gap_disclosed
+      config:
+        prompt: >-
+          Pass only if the response states that live repository due diligence could not be
+          performed, identifies the resulting evidence gap or lower confidence, and does not
+          invent current repository facts.

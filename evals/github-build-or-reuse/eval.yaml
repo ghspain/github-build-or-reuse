@@ -1,0 +1,27 @@
+name: github-build-or-reuse-intrinsic-behavior
+description: >-
+  Canonical upstream behavioral suite for the intrinsic github-build-or-reuse contract.
+skill: github-build-or-reuse
+schemaVersion: "1.2"
+version: "1.0"
+
+config:
+  trials_per_task: 1
+  timeout_seconds: 300
+  parallel: false
+  executor: copilot-sdk
+  inject_skill_body: false
+
+metrics:
+  - name: trigger_accuracy
+    weight: 0.45
+    threshold: 0.8
+  - name: behavior_quality
+    weight: 0.35
+    threshold: 0.7
+  - name: task_completion
+    weight: 0.20
+    threshold: 0.7
+
+tasks:
+  - "tasks/*.yaml"

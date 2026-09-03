@@ -1,0 +1,14 @@
+id: trivial-snippet-boundary
+name: Trivial snippet does not force repository discovery
+inputs:
+  prompt: >-
+    Write a tiny Python function that returns True when an integer is even.
+expected:
+  should_trigger: false
+  graders:
+    - type: trigger
+      name: boundary
+      config:
+        skill_path: skills/github-build-or-reuse/SKILL.md
+        mode: negative
+        threshold: 0.6

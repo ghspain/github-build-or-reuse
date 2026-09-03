@@ -1,0 +1,22 @@
+id: compare-open-source-alternatives
+name: Open-source comparison uses evidence and a reuse verdict
+inputs:
+  prompt: >-
+    Compare open-source GitHub projects I could reuse for browser automation in a service,
+    then tell me whether I should adopt one, contribute, fork, or build my own.
+expected:
+  should_trigger: true
+  graders:
+    - type: trigger
+      name: activation
+      config:
+        skill_path: skills/github-build-or-reuse/SKILL.md
+        mode: positive
+        threshold: 0.6
+    - type: prompt
+      name: evidence_based_decision
+      config:
+        prompt: >-
+          Pass only if the response compares plausible candidates using consequential evidence
+          such as fit, license, maintenance or security and returns one primary USE, CONTRIBUTE,
+          FORK, or BUILD verdict rather than ranking by stars alone.
