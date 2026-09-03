@@ -1,0 +1,5 @@
+{
+  "name": "github-build-or-reuse",
+  "version": "1.2.0",
+  "description": "Search GitHub before you build, vet open-source alternatives, then decide USE, CONTRIBUTE, FORK, or BUILD."
+}

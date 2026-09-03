@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "name": "github-build-or-reuse",
+  "displayName": "GitHub Build or Reuse",
+  "description": "Search GitHub before you build, vet open-source alternatives, then decide USE, CONTRIBUTE, FORK, or BUILD.",
+  "shortDescription": "Decide USE, CONTRIBUTE, FORK, or BUILD before coding",
+  "longDescription": "Search existing GitHub and open-source projects, verify functional fit, maintenance, security, licensing, governance and adoption cost, then choose the best reuse path before implementation.",
+  "author": {
+    "name": "GitHub Community Spain",
+    "url": "https://github.com/ghspain"
+  },
+  "repository": "https://github.com/ghspain/github-build-or-reuse",
+  "homepage": "https://github.com/ghspain/github-build-or-reuse",
+  "license": "MIT",
+  "category": "Productivity",
+  "keywords": [
+    "github",
+    "open-source",
+    "open-source-alternatives",
+    "agent-skills",
+    "github-copilot",
+    "codex",
+    "claude-code",
+    "cursor",
+    "gemini-cli",
+    "ai-coding-agents",
+    "software-reuse",
+    "build-vs-open-source",
+    "due-diligence"
+  ],
+  "defaultPrompt": [
+    "Before building this, search for existing open-source projects and recommend USE, CONTRIBUTE, FORK, or BUILD.",
+    "Compare GitHub projects that could solve this requirement before we write code."
+  ],
+  "marketplace": {
+    "name": "github-community-spain",
+    "displayName": "GitHub Community Spain",
+    "sourceUrl": "https://github.com/ghspain/github-build-or-reuse.git",
+    "ref": "main"
+  }
+}
