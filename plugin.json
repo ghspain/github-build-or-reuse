@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "github-build-or-reuse",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Search GitHub before you build, vet open-source alternatives, then decide USE, CONTRIBUTE, FORK, or BUILD.",
   "author": {
     "name": "GitHub Community Spain",
@@ -15,6 +15,7 @@
     "open-source",
     "open-source-alternatives",
     "agent-skills",
+    "agent-plugins",
     "github-copilot",
     "codex",
     "claude-code",
