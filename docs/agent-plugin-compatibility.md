@@ -1,6 +1,6 @@
 # Agent Plugin compatibility and distribution contract
 
-`github-build-or-reuse` uses **one canonical Agent Skill** and exposes it through multiple distribution surfaces. Agent Plugins 1.0 is an additional portable package format; it does not replace the Agent Skills or skills.sh paths.
+`github-build-or-reuse` uses **one canonical Agent Skill** and exposes it through multiple distribution surfaces. Agent Plugins 1.0 is the preferred future package boundary; it does not create a second runtime implementation.
 
 ## Canonical runtime source
 
@@ -10,7 +10,9 @@ The only runtime skill source is:
 skills/github-build-or-reuse/SKILL.md
 ```
 
-Both Agent Plugins v1 and skills.sh must continue discovering that exact directory. A root `SKILL.md` or a platform-specific copy would create competing sources of truth and is rejected by repository validation.
+Both Agent Plugins v1 and skills.sh must continue discovering that exact directory during the current compatibility phase. A root `SKILL.md` or a platform-specific copy would create competing sources of truth and is rejected by repository validation.
+
+An Agent Plugin may become the primary installable capability without replacing this file: Agent Skills are a standard component type inside Agent Plugins.
 
 ## Stability contract for skills.sh
 
@@ -26,6 +28,8 @@ The following identifiers are release invariants unless a deliberate migration i
 
 External skills.sh search/index ranking is not controlled by this repository, so it is not used as a blocking CI dependency. The repository instead preserves every stable input used by skills.sh discovery and validates the local CLI discovery path on every pull request.
 
+skills.sh is treated as a **discovery/install adapter**, not as another runtime source. Its eventual retirement requires equivalent practical discovery/install reach, not merely the existence of `plugin.json`. That decision is tracked in `svg153/skills#34`.
+
 ## Agent Plugins 1.0 package
 
 The portable package is rooted at the repository root:
@@ -39,7 +43,25 @@ skills/
 
 Agent Plugins 1.0 discovers skills from the fixed `skills/` location. `plugin.json` therefore contains only portable manifest metadata and does not duplicate a `skills` path field.
 
-The package currently does **not** include `mcp.json`. The skill can collect GitHub evidence through host-native GitHub access, an existing GitHub MCP integration, authenticated `gh`, the GitHub API, or web research. A bespoke wrapper MCP would add maintenance and security surface without a demonstrated unique capability.
+### Optional MCP composition
+
+Agent Plugins can also discover a root `mcp.json`. That file is a **connection/launch contract**, not proof that the plugin repository implements the MCP server itself.
+
+A conforming plugin may reuse:
+
+- an existing remote MCP server via `streamable-http`;
+- an existing executable via `stdio`;
+- legacy `sse` where compatibility requires it.
+
+Agent Plugins 1.0 does not define package-manager resolution of MCP dependencies by package name. It also does not define portable OAuth credential references. Authentication is client-managed, and plugin source must not embed secrets in HTTP headers.
+
+The general reusable MCP composition model is tracked in `svg153/skills#35`; the planning multi-MCP pilot is `svg153/skills#36`.
+
+### Why this package currently has no `mcp.json`
+
+`github-build-or-reuse` can collect GitHub evidence through host-native GitHub access, the official/existing GitHub MCP Server, authenticated `gh`, the GitHub API, or web research. Making one of these paths mandatory would reduce portability without adding a unique capability.
+
+Therefore the absence of `mcp.json` here means **no mandatory MCP dependency for this capability**, not “Agent Plugins should not reuse external MCPs”. A bespoke GitHub-wrapper MCP remains unjustified unless a differentiating capability gap appears.
 
 ## Compatibility evidence matrix
 
@@ -63,6 +85,8 @@ Do not rewrite a **manifest compatibility** result as "runs everywhere". Runtime
 
 `.codex-plugin/`, `.claude-plugin/`, `.cursor-plugin/`, `.agents/plugins/`, `marketplace.json`, and `gemini-extension.json` are compatibility/distribution outputs generated from canonical state. They must not become independent runtime copies.
 
+The intended migration is to retire these surfaces **individually** when the corresponding client has Agent Plugin-native parity for installation, discovery, updates and runtime. Do not delete them as a batch merely because the portable manifest exists.
+
 Regenerate and check them with:
 
 ```bash
@@ -74,10 +98,13 @@ python scripts/generate-distribution.py --check
 
 A distributable change must preserve these properties:
 
-- no secrets or credentials in plugin metadata;
+- no secrets or credentials in plugin metadata or `mcp.json`;
 - portable `plugin.json` only uses Agent Plugins v1 fields;
+- any `mcp.json` matches the same Agent Plugins specification version;
+- remote MCP endpoints use a reviewed HTTPS origin and no embedded credential header;
 - referenced skill content stays inside the repository package;
 - external Actions remain full-SHA pinned with explicit permissions and timeouts;
-- no MCP server or network endpoint is bundled without a concrete capability requirement and review;
+- no custom MCP implementation is added without a concrete capability requirement;
+- existing third-party MCP composition is allowed when it is part of the capability contract and has provenance/security review;
 - license/provenance information remains intact;
 - runtime compatibility is stated at the evidence level actually verified.
