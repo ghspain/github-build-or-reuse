@@ -1,10 +1,10 @@
 # Standards, packaging and roadmap
 
-This project deliberately separates **portable behavior** from **platform packaging**.
+This project deliberately separates **portable behavior** from **capability packaging and distribution**.
 
 ## Portable core: Agent Skills
 
-The canonical skill lives at `skills/github-build-or-reuse/`. It follows the open Agent Skills specification: a directory named after the skill, a `SKILL.md` with YAML frontmatter, and optional references, examples, scripts and evals. This is the source that Agent Skills-compatible clients should consume.
+The canonical skill lives at `skills/github-build-or-reuse/`. It follows the open Agent Skills specification: a directory named after the skill, a `SKILL.md` with YAML frontmatter, and optional references, examples, scripts and evals. This remains the source of portable runtime behavior even if Agent Plugins becomes the preferred package boundary.
 
 The canonical path and skill identity are also compatibility invariants for skills.sh. Agent Plugins adoption must not move, rename or duplicate this runtime source as an incidental packaging change.
 
@@ -21,9 +21,29 @@ skills/
 
 Agent Plugins v1 discovers Agent Skills from the fixed `skills/` directory, so the existing Agent Skills / skills.sh layout is reused directly. `plugin.json` contains portable metadata only and does not duplicate a `skills` path field.
 
-This is intentionally a **dual-distribution contract**, not a migration away from skills.sh. `scripts/validate-agent-plugin.py` requires the skill set discovered by Agent Plugins to match the skill set registered in `skills.sh.json`. CI separately runs `npx skills@latest add . --list` and requires `github-build-or-reuse` to remain discoverable.
+The intended direction is **plugin-first packaging with compatibility adapters**, not a second runtime implementation. An Agent Plugin may become the primary installable capability while `SKILL.md` remains its canonical behavior component.
+
+During this pilot, `scripts/validate-agent-plugin.py` requires the skill set discovered by Agent Plugins to match the skill set registered in `skills.sh.json`. CI separately runs `npx skills@latest add . --list` and requires `github-build-or-reuse` to remain discoverable.
 
 See [Agent Plugin compatibility and distribution contract](agent-plugin-compatibility.md) and [ADR 0001](adr/0001-agent-plugin-and-skills-sh-coexistence.md).
+
+## Can Agent Plugins replace the other surfaces?
+
+Potentially **some of them, over time**.
+
+Agent Plugins is a package format for skills and MCP servers. It can remove the need for host-specific packaging adapters once a host consumes the standard natively with equivalent install, discovery, update and runtime behavior.
+
+It does not make the Agent Skill disappear: the skill is a standard component inside the plugin. It also does not standardize public marketplaces or catalog ranking, so a discovery surface such as skills.sh still has independent value today.
+
+Retirement policy therefore follows evidence, not file-count reduction:
+
+1. Prefer Agent Plugins as the package boundary.
+2. Keep `SKILL.md` as canonical behavior.
+3. Retire host-specific generated adapters individually after native Agent Plugin parity is verified.
+4. Keep skills.sh while it materially adds discovery/install reach.
+5. Reassess skills.sh only after an equivalent Agent Plugin-native discovery path exists or skills.sh itself consumes Agent Plugins natively.
+
+The detailed retirement criteria are tracked in `svg153/skills#34`.
 
 ## Derived cross-agent packaging
 
@@ -78,30 +98,49 @@ Temporary discovery probes should be removed after owner-scoped indexing and exa
 
 ## MCP decision
 
-### Current verdict: do not bundle a custom MCP server
+### Agent Plugins MCP composition is broader than custom MCP implementation
 
-The workflow needs GitHub discovery and repository evidence, not a novel protocol or proprietary data source. Prefer, in order:
+Agent Plugins v1 optionally discovers MCP configuration from root `mcp.json`. That configuration may describe:
+
+- an existing remote MCP server using `streamable-http`;
+- an existing executable using `stdio`;
+- legacy `sse` where compatibility requires it.
+
+The MCP server therefore does **not** need to be implemented by the plugin repository. A capability can package its skills and declare existing third-party tool servers as part of the same installable contract.
+
+Agent Plugins v1 does not define a package-manager dependency mechanism such as “install MCP package X by name”. It defines how a client connects to or launches each declared server. Authentication and credential storage are client-managed; credentials must not be committed in `mcp.json` headers.
+
+Reusable MCP composition is tracked at catalog level in `svg153/skills#35`, with a multi-MCP planning pilot in `svg153/skills#36`.
+
+### Current verdict for GitHub Build or Reuse: no mandatory `mcp.json`
+
+The workflow needs GitHub discovery and repository evidence, but it deliberately supports several equivalent access paths. Prefer, in order according to the host:
 
 1. the host's native GitHub connector/API;
-2. an existing GitHub MCP integration when supported;
+2. the official/existing GitHub MCP integration when supported;
 3. authenticated `gh` or GitHub API;
 4. web research as fallback/context.
 
 A bespoke GitHub wrapper would contradict the project's own reuse principle unless it creates a real capability unavailable through existing integrations.
 
-Agent Plugins v1 supports an optional root `mcp.json`, but absence of that file is valid. Packaging support alone is not a reason to introduce a server.
+Making the official GitHub MCP a mandatory `mcp.json` dependency would also narrow a skill that currently works through multiple host-native GitHub paths. Therefore this capability keeps `mcp.json` absent unless testing shows that a stable mandatory MCP contract improves behavior enough to justify the coupling.
 
-### Reconsider MCP when
+This is a **capability-specific decision**, not a recommendation against MCP composition in Agent Plugins generally.
+
+### Reconsider `mcp.json` here when
 
 - a stable cross-host GitHub tool contract is unavailable elsewhere;
+- runtime parity depends on one consistent GitHub tool surface;
 - server-side aggregation/scoring becomes necessary;
 - organization/private workflows require centralized auth or policy;
-- existing MCP implementations cannot satisfy the requirement.
+- an existing MCP supplies a required capability that host-native access cannot reliably provide.
 
 ## Future iterations
 
 1. Promote behavioral evals to the repository's primary runtime quality gate and measure trigger/boundary behavior under a pinned executor.
 2. Capture real install/runtime evidence for Codex, GitHub Copilot, GitHub Agentic Workflows, Claude Code, Cursor and Gemini and maintain the evidence classification in `docs/agent-plugin-compatibility.md`.
-3. Add more worked decision cases (developer portals, feature flags, RAG stacks, self-hosted apps, internal tools).
-4. Consider structured machine-readable decision output for CI/agent orchestration.
-5. Reconsider MCP only after a concrete tool gap is demonstrated.
+3. Feed this pilot into `svg153/skills#34` to decide which host-specific adapters can be retired safely.
+4. Generalize optional third-party MCP composition through `svg153/skills#35`.
+5. Prove skills + multiple reused MCP servers together with the planning pilot in `svg153/skills#36`.
+6. Add more worked decision cases (developer portals, feature flags, RAG stacks, self-hosted apps, internal tools).
+7. Consider structured machine-readable decision output for CI/agent orchestration.
