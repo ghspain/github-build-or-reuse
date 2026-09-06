@@ -67,3 +67,27 @@ jobs:
           npx -y skills@latest add . --list | tee /tmp/skills-list.txt
           grep -q 'github-build-or-reuse' /tmp/skills-list.txt
           echo "OK: npx skills discovers github-build-or-reuse"
+
+      - name: Set up Node.js for Copilot CLI
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '22'
+
+      - name: Validate GitHub Copilot CLI marketplace install
+        env:
+          COPILOT_HOME: ${{ runner.temp }}/copilot-home
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@github/copilot@1.0.83'
+          copilot --version
+
+          copilot plugin marketplace add .
+          copilot plugin marketplace browse github-build-or-reuse 2>&1 | tee /tmp/copilot-marketplace.txt
+          grep -q 'github-build-or-reuse' /tmp/copilot-marketplace.txt
+
+          copilot plugin install github-build-or-reuse@github-build-or-reuse
+          copilot plugin list 2>&1 | tee /tmp/copilot-plugins.txt
+          grep -q 'github-build-or-reuse@github-build-or-reuse' /tmp/copilot-plugins.txt
+
+          echo 'OK: Copilot CLI marketplace installed github-build-or-reuse'
