@@ -67,19 +67,64 @@ Therefore the absence of `mcp.json` here means **no mandatory MCP dependency for
 
 Compatibility claims are deliberately separated by evidence strength.
 
+Last updated: 2026-09-07.
+
 | Surface | Current evidence | Classification |
 | --- | --- | --- |
 | Agent Plugins 1.0 root package | fixed-layout + closed-field validation in CI | conformance/discovery verified |
 | Agent Skills reference format | upstream `skills-ref validate` in CI | format verified |
 | skills.sh / `npx skills` | `npx skills@latest add . --list` in CI | local install/discovery verified |
-| GitHub CLI `gh skill` | `gh skill publish --dry-run` when runner CLI supports it | publish-path verified when available |
-| Codex adapter | generated from canonical distribution config | manifest compatibility; runtime verification pending |
+| GitHub CLI `gh skill` | `gh skill publish --dry-run` on runner GitHub CLI 2.98.0 | publish-path verified |
+| GitHub Copilot CLI | `@github/copilot` 1.0.83, Node 22; marketplace add/browse/install/list in CI | Agent Plugin marketplace install/discovery verified |
+| OpenAI Codex CLI | `@openai/codex` 0.153.4, Node 22, isolated `CODEX_HOME`; marketplace add + `plugin add` + installed/enabled state in CI | native Agent Plugin install/discovery verified |
+| Codex generated adapter | still generated from canonical distribution config | compatibility fallback; retirement candidate after behavioral/update parity |
 | Claude Code adapter | generated from canonical distribution config | manifest compatibility; runtime verification pending |
 | Cursor adapter | generated from canonical distribution config | manifest compatibility; runtime verification pending |
 | Gemini CLI adapter | generated from canonical distribution config | manifest compatibility; runtime verification pending |
 | GitHub Agentic Workflows | no runtime evidence captured yet | pending |
 
-Do not rewrite a **manifest compatibility** result as "runs everywhere". Runtime claims should include client/version/date and the command or evidence used to verify them.
+Do not rewrite an **install/discovery** result as behavioral execution. Runtime claims should include client/version/date and the command or evidence used to verify them.
+
+### Copilot CLI evidence
+
+CI verifies the marketplace-first route with:
+
+```bash
+copilot plugin marketplace add .
+copilot plugin marketplace browse github-build-or-reuse
+copilot plugin install github-build-or-reuse@github-build-or-reuse
+copilot plugin list
+```
+
+Observed on Copilot CLI 1.0.83:
+
+- marketplace registration succeeds;
+- `github-build-or-reuse` is discoverable;
+- the plugin installs successfully with **1 skill**;
+- `github-build-or-reuse@github-build-or-reuse` is enabled and loaded from the checked-out repository marketplace.
+
+The marketplace path is intentionally preferred over direct repo/path installation because current Copilot CLI warns that direct plugin installs are deprecated.
+
+### Codex CLI evidence
+
+CI verifies the existing repo-local `.agents/plugins/marketplace.json` with an isolated `CODEX_HOME`:
+
+```bash
+codex plugin marketplace add .
+codex plugin list --available --json
+codex plugin add github-build-or-reuse@github-community-spain --json
+codex plugin list --json
+```
+
+Observed on Codex CLI 0.153.4:
+
+- marketplace `github-community-spain` registers from the repository;
+- `github-build-or-reuse@github-community-spain` is available;
+- installation resolves the root Agent Plugins package to version `1.2.2`;
+- the installed plugin is cached under the isolated Codex plugin cache;
+- final state reports `installed: true` and `enabled: true`.
+
+This is native Agent Plugins evidence for the repository root. It does **not** yet prove that every behavior/evaluation path is identical to the generated `.codex-plugin` fallback or that update/governance semantics have full parity, so the generated Codex adapter is not removed by this change.
 
 ## Host-specific adapters
 
@@ -87,7 +132,9 @@ Do not rewrite a **manifest compatibility** result as "runs everywhere". Runtime
 
 The intended migration is to retire these surfaces **individually** when the corresponding client has Agent Plugin-native parity for installation, discovery, updates and runtime. Do not delete them as a batch merely because the portable manifest exists.
 
-Regenerate and check them with:
+Codex is now the first host for which native Agent Plugin install/discovery parity is verified in CI. Its generated adapter is therefore a **retirement candidate**, not yet retired: behavioral invocation and update/governance parity should be captured first.
+
+Regenerate and check adapters with:
 
 ```bash
 python scripts/generate-distribution.py
