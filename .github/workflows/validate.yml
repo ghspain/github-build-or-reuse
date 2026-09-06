@@ -23,6 +23,13 @@ jobs:
       - name: Validate workflow security baseline
         run: python scripts/validate-workflow-security.py
 
+      - name: Validate immutable release tag recipe
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/validate-release-ruleset.py
+          bash -n scripts/manage-release-ruleset.sh
+
       - name: Validate repository packaging
         run: python scripts/validate.py
 
