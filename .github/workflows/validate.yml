@@ -68,7 +68,7 @@ jobs:
           grep -q 'github-build-or-reuse' /tmp/skills-list.txt
           echo "OK: npx skills discovers github-build-or-reuse"
 
-      - name: Set up Node.js for Copilot CLI
+      - name: Set up Node.js for plugin CLIs
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '22'
@@ -91,3 +91,28 @@ jobs:
           grep -q 'github-build-or-reuse@github-build-or-reuse' /tmp/copilot-plugins.txt
 
           echo 'OK: Copilot CLI marketplace installed github-build-or-reuse'
+
+      - name: Validate Codex CLI Agent Plugin marketplace install
+        env:
+          CODEX_HOME: ${{ runner.temp }}/codex-home
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$CODEX_HOME"
+          npm install --global '@openai/codex@0.153.4'
+          codex --version
+
+          codex plugin marketplace add .
+          codex plugin list --available --json > /tmp/codex-available.json
+          cat /tmp/codex-available.json
+          grep -q 'github-build-or-reuse@github-community-spain' /tmp/codex-available.json
+
+          codex plugin add github-build-or-reuse@github-community-spain --json > /tmp/codex-install.json
+          cat /tmp/codex-install.json
+          codex plugin list --json > /tmp/codex-plugins.json
+          cat /tmp/codex-plugins.json
+          grep -q 'github-build-or-reuse@github-community-spain' /tmp/codex-plugins.json
+          grep -q '"installed": true' /tmp/codex-plugins.json
+          grep -q '"enabled": true' /tmp/codex-plugins.json
+
+          echo 'OK: Codex CLI installed and enabled the portable github-build-or-reuse Agent Plugin'
