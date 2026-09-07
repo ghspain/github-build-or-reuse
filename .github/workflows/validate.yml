@@ -142,6 +142,28 @@ jobs:
 
           echo 'OK: Codex CLI installed and enabled the portable github-build-or-reuse Agent Plugin'
 
+      - name: Validate Claude Code plugin marketplace install
+        env:
+          CLAUDE_TEST_HOME: ${{ runner.temp }}/claude-home
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@anthropic-ai/claude-code@2.1.263'
+          claude --version
+          mkdir -p "$CLAUDE_TEST_HOME"
+
+          HOME="$CLAUDE_TEST_HOME" claude plugin validate .
+          HOME="$CLAUDE_TEST_HOME" claude plugin marketplace add . --scope user
+          HOME="$CLAUDE_TEST_HOME" claude plugin list --available --json > /tmp/claude-available.json
+          cat /tmp/claude-available.json
+          grep -q 'github-build-or-reuse' /tmp/claude-available.json
+
+          HOME="$CLAUDE_TEST_HOME" claude plugin install github-build-or-reuse@github-build-or-reuse --scope user
+          HOME="$CLAUDE_TEST_HOME" claude plugin list --json > /tmp/claude-plugins.json
+          cat /tmp/claude-plugins.json
+          grep -q 'github-build-or-reuse@github-build-or-reuse' /tmp/claude-plugins.json
+          echo 'OK: Claude Code validated and installed the generated plugin marketplace adapter'
+
       - name: Validate Gemini CLI extension install and skill discovery
         env:
           GEMINI_TEST_HOME: ${{ runner.temp }}/gemini-home
