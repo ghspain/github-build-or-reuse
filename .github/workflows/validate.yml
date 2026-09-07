@@ -152,8 +152,8 @@ jobs:
           claude --version
           mkdir -p "$CLAUDE_TEST_HOME"
 
-          HOME="$CLAUDE_TEST_HOME" claude plugin validate .
-          HOME="$CLAUDE_TEST_HOME" claude plugin marketplace add . --scope user
+          HOME="$CLAUDE_TEST_HOME" claude plugin validate . --strict
+          HOME="$CLAUDE_TEST_HOME" claude plugin marketplace add ./ --scope user
           HOME="$CLAUDE_TEST_HOME" claude plugin list --available --json > /tmp/claude-available.json
           cat /tmp/claude-available.json
           grep -q 'github-build-or-reuse' /tmp/claude-available.json
