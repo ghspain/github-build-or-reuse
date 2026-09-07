@@ -4,6 +4,8 @@ All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-09-07
+
 ### Added
 
 - Pinned multi-host compatibility smoke tests for GitHub Copilot CLI 1.0.83, OpenAI Codex CLI 0.153.4, Claude Code 2.1.263, Gemini CLI 0.58.0, and GitHub Agentic Workflows 0.88.4.
