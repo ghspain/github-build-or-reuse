@@ -172,11 +172,22 @@ jobs:
           set -euo pipefail
           npm install --global '@google/gemini-cli@0.58.0'
           gemini --version
-          mkdir -p "$GEMINI_TEST_HOME"
 
-          HOME="$GEMINI_TEST_HOME" gemini extensions validate .
-          HOME="$GEMINI_TEST_HOME" gemini extensions install . --consent --skip-settings
-          HOME="$GEMINI_TEST_HOME" gemini extensions list 2>&1 | tee /tmp/gemini-extensions.txt
+          mkdir -p "$GEMINI_TEST_HOME/.gemini"
+          cat > "$GEMINI_TEST_HOME/.gemini/settings.json" <<'JSON'
+          {
+            "security": {
+              "folderTrust": {
+                "enabled": false
+              }
+            }
+          }
+          JSON
+
+          EXTENSION_ROOT="$(pwd)"
+          HOME="$GEMINI_TEST_HOME" timeout 120s gemini extensions validate "$EXTENSION_ROOT"
+          HOME="$GEMINI_TEST_HOME" timeout 120s gemini extensions install "$EXTENSION_ROOT" --consent --skip-settings
+          HOME="$GEMINI_TEST_HOME" timeout 120s gemini extensions list 2>&1 | tee /tmp/gemini-extensions.txt
           grep -q 'github-build-or-reuse' /tmp/gemini-extensions.txt
 
           test -f "$GEMINI_TEST_HOME/.gemini/extensions/github-build-or-reuse/skills/github-build-or-reuse/SKILL.md"
