@@ -52,6 +52,24 @@ jobs:
           python -m pip install /tmp/agentskills/skills-ref
           skills-ref validate skills/github-build-or-reuse
 
+      - name: Set up GitHub Agentic Workflows CLI
+        uses: github/gh-aw/actions/setup-cli@82239c030d6a1ef6ec8b87a80a1346eeef211f8d # v0.88.4
+        with:
+          version: v0.88.4
+
+      - name: Validate GitHub Agentic Workflows Agent Plugin compilation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh aw version
+          gh aw compile --dir tests/fixtures/gh-aw --no-check-update
+          test -f tests/fixtures/gh-aw/build-or-reuse-plugin.lock.yml
+          grep -q 'ghspain/github-build-or-reuse' tests/fixtures/gh-aw/build-or-reuse-plugin.lock.yml
+          grep -q '74f8cfeca5c0ed5799a0ab71be88d06fc9e2afb1' tests/fixtures/gh-aw/build-or-reuse-plugin.lock.yml
+          echo 'OK: gh-aw resolved v1.2.2 to its immutable commit and compiled plugin consumption'
+
       - name: Validate with GitHub CLI skill publisher
         shell: bash
         run: |
@@ -123,3 +141,54 @@ jobs:
           grep -q '"enabled": true' /tmp/codex-plugins.json
 
           echo 'OK: Codex CLI installed and enabled the portable github-build-or-reuse Agent Plugin'
+
+      - name: Validate Claude Code plugin marketplace install
+        env:
+          CLAUDE_TEST_HOME: ${{ runner.temp }}/claude-home
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@anthropic-ai/claude-code@2.1.263'
+          claude --version
+          mkdir -p "$CLAUDE_TEST_HOME"
+
+          HOME="$CLAUDE_TEST_HOME" claude plugin validate . --strict
+          HOME="$CLAUDE_TEST_HOME" claude plugin marketplace add ./ --scope user
+          HOME="$CLAUDE_TEST_HOME" claude plugin list --available --json > /tmp/claude-available.json
+          cat /tmp/claude-available.json
+          grep -q 'github-build-or-reuse' /tmp/claude-available.json
+
+          HOME="$CLAUDE_TEST_HOME" claude plugin install github-build-or-reuse@github-build-or-reuse --scope user
+          HOME="$CLAUDE_TEST_HOME" claude plugin list --json > /tmp/claude-plugins.json
+          cat /tmp/claude-plugins.json
+          grep -q 'github-build-or-reuse@github-build-or-reuse' /tmp/claude-plugins.json
+          echo 'OK: Claude Code validated and installed the generated plugin marketplace adapter'
+
+      - name: Validate Gemini CLI extension install and skill discovery
+        env:
+          GEMINI_TEST_HOME: ${{ runner.temp }}/gemini-home
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@google/gemini-cli@0.58.0'
+          gemini --version
+
+          mkdir -p "$GEMINI_TEST_HOME/.gemini"
+          cat > "$GEMINI_TEST_HOME/.gemini/settings.json" <<'JSON'
+          {
+            "security": {
+              "folderTrust": {
+                "enabled": false
+              }
+            }
+          }
+          JSON
+
+          EXTENSION_ROOT="$(pwd)"
+          HOME="$GEMINI_TEST_HOME" timeout 120s gemini extensions validate "$EXTENSION_ROOT"
+          HOME="$GEMINI_TEST_HOME" timeout 120s gemini extensions install "$EXTENSION_ROOT" --consent --skip-settings
+          HOME="$GEMINI_TEST_HOME" timeout 120s gemini extensions list 2>&1 | tee /tmp/gemini-extensions.txt
+          grep -q 'github-build-or-reuse' /tmp/gemini-extensions.txt
+
+          test -f "$GEMINI_TEST_HOME/.gemini/extensions/github-build-or-reuse/skills/github-build-or-reuse/SKILL.md"
+          echo 'OK: Gemini CLI installed the generated extension and retained the canonical Agent Skill'

@@ -133,6 +133,11 @@ def render(config: dict, version: str) -> dict[Path, str]:
         "skills": "./skills/",
         "interface": interface,
     }
+    # Claude Code ignores the cross-host `interface` object and reports it as an
+    # unknown-field warning. Keep its generated adapter minimal and native to
+    # the Claude plugin schema while deriving all runtime content from the same
+    # canonical state.
+    claude_plugin = {key: value for key, value in host_plugin.items() if key != "interface"}
     marketplace = {
         "name": name,
         "owner": author,
@@ -168,7 +173,7 @@ def render(config: dict, version: str) -> dict[Path, str]:
         Path("marketplace.json"): dump(marketplace),
         Path(".agents/plugins/marketplace.json"): dump(agents_marketplace),
         Path(".codex-plugin/plugin.json"): dump(host_plugin),
-        Path(".claude-plugin/plugin.json"): dump(host_plugin),
+        Path(".claude-plugin/plugin.json"): dump(claude_plugin),
         Path(".claude-plugin/marketplace.json"): dump(claude_marketplace),
         Path(".cursor-plugin/marketplace.json"): dump(cursor_marketplace),
         Path("gemini-extension.json"): dump(gemini),
