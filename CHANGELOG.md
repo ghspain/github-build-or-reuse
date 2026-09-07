@@ -4,6 +4,25 @@ All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Pinned multi-host compatibility smoke tests for GitHub Copilot CLI 1.0.83, OpenAI Codex CLI 0.153.4, Claude Code 2.1.263, Gemini CLI 0.58.0, and GitHub Agentic Workflows 0.88.4.
+- GitHub Agentic Workflows compile fixture proving `plugins:` consumption and release-tag resolution from `v1.2.2` to commit `74f8cfeca5c0ed5799a0ab71be88d06fc9e2afb1`.
+- Importable immutable `refs/tags/v*` repository ruleset recipe, validator, and admin helper derived from GitHub's official ruleset recipes. Live activation remains an explicit repository-admin action tracked in #32.
+
+### Changed
+
+- Claude Code adapter generation now omits the cross-host `interface` object because Claude Code ignores that field; strict client validation and marketplace installation now pass without adapter warnings.
+- Compatibility documentation now distinguishes conformance, install/discovery, compile/consumption, documented native support, and behavioral runtime evidence instead of treating generated manifests as runtime proof.
+- Gemini compatibility validation uses an isolated non-interactive test home and verifies that the installed extension retains the canonical `skills/github-build-or-reuse/SKILL.md`.
+
+### Compatibility
+
+- GitHub Copilot CLI, OpenAI Codex CLI, Claude Code, and Gemini CLI now have real install/discovery evidence in CI.
+- GitHub Agentic Workflows has compile/consumption evidence with an immutable resolved plugin commit; model execution is intentionally not claimed.
+- Cursor remains vendor-documented native Agent Plugins support without repository-executed headless install evidence.
+- The canonical skill and skills.sh / `npx skills` install path remain unchanged.
+
 ## [1.2.2] - 2026-09-04
 
 ### Added
