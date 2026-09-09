@@ -1,0 +1,45 @@
+name: Copilot Plugin Lifecycle
+
+on:
+  push:
+    paths:
+      - 'scripts/test-copilot-plugin-lifecycle.sh'
+      - '.github/workflows/copilot-plugin-lifecycle.yml'
+      - 'docs/agent-plugin-compatibility.md'
+  pull_request:
+    paths:
+      - 'scripts/test-copilot-plugin-lifecycle.sh'
+      - '.github/workflows/copilot-plugin-lifecycle.yml'
+      - 'docs/agent-plugin-compatibility.md'
+
+permissions:
+  contents: read
+
+jobs:
+  lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate workflow security baseline
+        run: python scripts/validate-workflow-security.py
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '22'
+
+      - name: Install pinned GitHub Copilot CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global '@github/copilot@1.0.83'
+          copilot --version
+
+      - name: Verify native plugin update lifecycle
+        shell: bash
+        run: bash scripts/test-copilot-plugin-lifecycle.sh
