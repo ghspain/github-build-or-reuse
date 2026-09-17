@@ -2,8 +2,9 @@
 set -euo pipefail
 
 PLUGIN_NAME="github-build-or-reuse"
-MARKETPLACE_NAME="github-build-or-reuse-lifecycle"
+MARKETPLACE_NAME="github-build-or-reuse"
 REPOSITORY="ghspain/github-build-or-reuse"
+REPOSITORY_URL="https://github.com/$REPOSITORY.git"
 OLD_VERSION="1.2.2"
 OLD_REF="v1.2.2"
 OLD_SHA="74f8cfeca5c0ed5799a0ab71be88d06fc9e2afb1"
@@ -18,9 +19,8 @@ fi
 
 SANDBOX="$(mktemp -d)"
 trap 'rm -rf "$SANDBOX"' EXIT
-MARKETPLACE_ROOT="$SANDBOX/marketplace"
 TEST_HOME="$SANDBOX/home"
-mkdir -p "$MARKETPLACE_ROOT" "$TEST_HOME" "$SANDBOX/copilot-home" "$SANDBOX/cache"
+mkdir -p "$TEST_HOME" "$SANDBOX/copilot-home" "$SANDBOX/cache"
 
 export HOME="$TEST_HOME"
 export COPILOT_HOME="$SANDBOX/copilot-home"
@@ -28,43 +28,36 @@ export COPILOT_CACHE_HOME="$SANDBOX/cache"
 export XDG_CACHE_HOME="$SANDBOX/cache"
 export COPILOT_AUTO_UPDATE="false"
 
-write_marketplace() {
-  local version="$1"
-  local ref="$2"
-  local sha="$3"
-  cat > "$MARKETPLACE_ROOT/marketplace.json" <<JSON
-{
-  "name": "$MARKETPLACE_NAME",
-  "owner": {
-    "name": "GitHub Community Spain"
-  },
-  "metadata": {
-    "description": "Ephemeral lifecycle verification marketplace"
-  },
-  "plugins": [
-    {
-      "name": "$PLUGIN_NAME",
-      "description": "Lifecycle verification for the portable Agent Plugin",
-      "version": "$version",
-      "source": {
-        "source": "github",
-        "repo": "$REPOSITORY",
-        "ref": "$ref",
-        "sha": "$sha"
-      }
-    }
-  ]
+resolve_release_commit() {
+  local ref="$1"
+  local direct dereferenced
+  direct="$(git ls-remote "$REPOSITORY_URL" "refs/tags/$ref" | awk 'NR==1 {print $1}')"
+  dereferenced="$(git ls-remote "$REPOSITORY_URL" "refs/tags/$ref^{}" | awk 'NR==1 {print $1}')"
+  if [[ -n "$dereferenced" ]]; then
+    printf '%s\n' "$dereferenced"
+  else
+    printf '%s\n' "$direct"
+  fi
 }
-JSON
+
+assert_release_commit() {
+  local ref="$1"
+  local expected="$2"
+  local actual
+  actual="$(resolve_release_commit "$ref")"
+  if [[ "$actual" != "$expected" ]]; then
+    echo "ERROR: $ref resolves to $actual, expected immutable commit $expected" >&2
+    exit 1
+  fi
+  echo "OK: $ref resolves to expected commit $expected"
 }
 
 dump_state() {
   echo "--- Copilot lifecycle diagnostic state ---" >&2
   echo "COPILOT_HOME=$COPILOT_HOME" >&2
-  echo "COPILOT_CACHE_HOME=$COPILOT_CACHE_HOME" >&2
   copilot plugin marketplace list --json >&2 || true
   copilot plugin list --json >&2 || true
-  find "$COPILOT_HOME" -maxdepth 6 -type f -print >&2 || true
+  find "$COPILOT_HOME" -maxdepth 7 -type f -print >&2 || true
   if [[ -f "$COPILOT_HOME/config.json" ]]; then
     cat "$COPILOT_HOME/config.json" >&2 || true
   fi
@@ -114,26 +107,30 @@ assert_installed_skill() {
   printf 'OK: installed canonical skill is %s at %s\n' "$expected" "$skill_file"
 }
 
-write_marketplace "$OLD_VERSION" "$OLD_REF" "$OLD_SHA"
+assert_release_commit "$OLD_REF" "$OLD_SHA"
+assert_release_commit "$NEW_REF" "$NEW_SHA"
 
-copilot plugin marketplace add "$MARKETPLACE_ROOT"
+# Use the real remote marketplace at the older immutable release. This is the
+# supported distribution path users exercise, unlike a local marketplace that
+# contains a remote plugin source object.
+copilot plugin marketplace add "$REPOSITORY#$OLD_REF"
 copilot plugin marketplace browse "$MARKETPLACE_NAME" --json | tee "$SANDBOX/marketplace-old.json"
-
 copilot plugin install "$PLUGIN_NAME@$MARKETPLACE_NAME"
 assert_installed_version "$OLD_VERSION"
 assert_installed_skill "$OLD_VERSION"
 
-write_marketplace "$NEW_VERSION" "$NEW_REF" "$NEW_SHA"
+# Re-register the same marketplace name at the newer immutable release, refresh
+# its catalog, then use the native plugin update command. Do not substitute
+# uninstall + install for update.
+copilot plugin marketplace add "$REPOSITORY#$NEW_REF"
 copilot plugin marketplace update "$MARKETPLACE_NAME"
 copilot plugin marketplace browse "$MARKETPLACE_NAME" --json | tee "$SANDBOX/marketplace-new.json"
-
-# This is the lifecycle property under test. Do not replace it with uninstall + install.
 copilot plugin update "$PLUGIN_NAME@$MARKETPLACE_NAME"
 assert_installed_version "$NEW_VERSION"
 assert_installed_skill "$NEW_VERSION"
 
 copilot plugin uninstall "$PLUGIN_NAME@$MARKETPLACE_NAME"
-if copilot plugin list --json | python -c 'import json,sys; rows=json.load(sys.stdin); raise SystemExit(any(r.get("name") == "github-build-or-reuse" and r.get("marketplace") == "github-build-or-reuse-lifecycle" for r in rows))'; then
+if copilot plugin list --json | python -c 'import json,sys; rows=json.load(sys.stdin); raise SystemExit(any(r.get("name") == "github-build-or-reuse" and r.get("marketplace") == "github-build-or-reuse" for r in rows))'; then
   :
 else
   echo "ERROR: plugin remains installed after native uninstall" >&2
