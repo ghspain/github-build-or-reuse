@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm install --global '@github/copilot@1.0.83'
+          npm install --global '@github/copilot@1.0.85'
           copilot --version
 
       - name: Verify native plugin update lifecycle
