@@ -85,7 +85,8 @@ write_marketplace() {
         "source": "github",
         "repo": "$REPOSITORY",
         "ref": "$ref",
-        "sha": "$sha"
+        "sha": "$sha",
+        "path": "."
       }
     }
   ]
@@ -106,12 +107,20 @@ publish_marketplace_state() {
 dump_state() {
   echo "--- Copilot lifecycle diagnostic state ---" >&2
   echo "COPILOT_HOME=$COPILOT_HOME" >&2
+  echo "COPILOT_CACHE_HOME=$COPILOT_CACHE_HOME" >&2
   copilot plugin marketplace list --json >&2 || true
   copilot plugin list --json >&2 || true
   find "$COPILOT_HOME" -maxdepth 7 -type f -print >&2 || true
   if [[ -f "$COPILOT_HOME/config.json" ]]; then
     cat "$COPILOT_HOME/config.json" >&2 || true
   fi
+  echo "--- Copilot process logs ---" >&2
+  for logfile in "$COPILOT_HOME"/logs/process-*.log; do
+    if [[ -f "$logfile" ]]; then
+      echo "### $logfile" >&2
+      tail -n 160 "$logfile" >&2 || true
+    fi
+  done
   echo "--- end diagnostic state ---" >&2
 }
 
