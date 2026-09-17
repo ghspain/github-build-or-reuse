@@ -1,0 +1,41 @@
+name: Behavioral Runtime Evidence
+
+on:
+  push:
+    paths:
+      - 'evidence/behavioral/**'
+      - 'scripts/validate-behavioral-runtime-evidence.py'
+      - 'tests/test_behavioral_runtime_evidence.py'
+      - 'docs/behavioral-runtime-evidence.md'
+      - '.github/workflows/behavioral-runtime-evidence.yml'
+      - 'evals/github-build-or-reuse/tasks/nontrivial-build-research-first.yaml'
+  pull_request:
+    paths:
+      - 'evidence/behavioral/**'
+      - 'scripts/validate-behavioral-runtime-evidence.py'
+      - 'tests/test_behavioral_runtime_evidence.py'
+      - 'docs/behavioral-runtime-evidence.md'
+      - '.github/workflows/behavioral-runtime-evidence.yml'
+      - 'evals/github-build-or-reuse/tasks/nontrivial-build-research-first.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate workflow security baseline
+        run: python scripts/validate-workflow-security.py
+
+      - name: Validate behavioral evidence files
+        run: python scripts/validate-behavioral-runtime-evidence.py
+
+      - name: Run behavioral evidence validator tests
+        run: python -m unittest tests.test_behavioral_runtime_evidence

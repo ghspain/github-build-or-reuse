@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "mode": "template",
+  "scenarioId": "nontrivial-build-research-first",
+  "plugin": {
+    "name": "github-build-or-reuse",
+    "version": "replace-with-installed-version",
+    "source": "replace-with-install-source",
+    "canonicalSkillPath": "skills/github-build-or-reuse/SKILL.md"
+  },
+  "client": {
+    "name": "copilot-cli",
+    "version": "replace-with-exact-client-version"
+  },
+  "environment": {
+    "platform": "replace-with-platform",
+    "containsSensitiveData": false
+  },
+  "capturedAt": "1970-01-01T00:00:00Z",
+  "execution": {
+    "status": "pending",
+    "skillActivated": null,
+    "evidenceGatheringPath": [],
+    "verdict": null,
+    "degradedOrUnknownChecks": [],
+    "resultSummary": "",
+    "sanitizedOutput": "",
+    "blockedReason": ""
+  }
+}
