@@ -31,7 +31,8 @@ trap cleanup EXIT
 TEST_HOME="$SANDBOX/home"
 MARKETPLACE_WORK="$SANDBOX/marketplace-work"
 MARKETPLACE_BARE="$SANDBOX/marketplace.git"
-mkdir -p "$TEST_HOME" "$SANDBOX/copilot-home" "$SANDBOX/cache" "$MARKETPLACE_WORK"
+HTTP_ROOT="$SANDBOX/http-root"
+mkdir -p "$TEST_HOME" "$SANDBOX/copilot-home" "$SANDBOX/cache" "$MARKETPLACE_WORK" "$HTTP_ROOT/cgi-bin"
 
 export HOME="$TEST_HOME"
 export COPILOT_HOME="$SANDBOX/copilot-home"
@@ -102,8 +103,6 @@ publish_marketplace_state() {
   git -C "$MARKETPLACE_WORK" add marketplace.json
   git -C "$MARKETPLACE_WORK" commit -m "marketplace: publish $version" >/dev/null
   git -C "$MARKETPLACE_WORK" push origin main >/dev/null
-  # Enable read-only dumb HTTP cloning from the local bare repository.
-  git --git-dir="$MARKETPLACE_BARE" update-server-info
 }
 
 dump_state() {
@@ -115,6 +114,10 @@ dump_state() {
   find "$COPILOT_HOME" -maxdepth 7 -type f -print >&2 || true
   if [[ -f "$COPILOT_HOME/config.json" ]]; then
     cat "$COPILOT_HOME/config.json" >&2 || true
+  fi
+  echo "--- Smart HTTP server log ---" >&2
+  if [[ -f "$SANDBOX/http.log" ]]; then
+    tail -n 120 "$SANDBOX/http.log" >&2 || true
   fi
   echo "--- Copilot process logs ---" >&2
   for logfile in "$COPILOT_HOME"/logs/process-*.log; do
@@ -173,7 +176,7 @@ assert_release_commit "$OLD_REF" "$OLD_SHA"
 assert_release_commit "$NEW_REF" "$NEW_SHA"
 
 # Create a genuinely remote Git marketplace fixture that can advance while
-# keeping the same registered marketplace identity. It is served read-only over
+# keeping the same registered marketplace identity. It is served over Git smart
 # HTTP from localhost; the plugin payload itself is fetched from the two real,
 # SHA-verified GitHub releases above.
 git init --bare "$MARKETPLACE_BARE" >/dev/null
@@ -184,7 +187,14 @@ git -C "$MARKETPLACE_WORK" remote add origin "$MARKETPLACE_BARE"
 git -C "$MARKETPLACE_WORK" checkout -b main >/dev/null
 publish_marketplace_state "$OLD_VERSION" "$OLD_REF" "$OLD_SHA"
 git --git-dir="$MARKETPLACE_BARE" symbolic-ref HEAD refs/heads/main
-git --git-dir="$MARKETPLACE_BARE" update-server-info
+
+cat > "$HTTP_ROOT/cgi-bin/git" <<EOF
+#!/usr/bin/env bash
+export GIT_PROJECT_ROOT="$SANDBOX"
+export GIT_HTTP_EXPORT_ALL=1
+exec git http-backend
+EOF
+chmod +x "$HTTP_ROOT/cgi-bin/git"
 
 auto_port="$(python - <<'PY'
 import socket
@@ -193,10 +203,10 @@ with socket.socket() as s:
     print(s.getsockname()[1])
 PY
 )"
-python -m http.server "$auto_port" --bind 127.0.0.1 --directory "$SANDBOX" >"$SANDBOX/http.log" 2>&1 &
+python -m http.server --cgi "$auto_port" --bind 127.0.0.1 --directory "$HTTP_ROOT" >"$SANDBOX/http.log" 2>&1 &
 HTTP_SERVER_PID=$!
 sleep 1
-MARKETPLACE_URL="http://127.0.0.1:$auto_port/marketplace.git"
+MARKETPLACE_URL="http://127.0.0.1:$auto_port/cgi-bin/git/marketplace.git"
 git ls-remote "$MARKETPLACE_URL" refs/heads/main >/dev/null
 
 copilot plugin marketplace add "$MARKETPLACE_URL"
