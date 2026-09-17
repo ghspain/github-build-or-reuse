@@ -104,18 +104,28 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm install --global '@github/copilot@1.0.83'
+          npm install --global '@github/copilot@1.0.85'
           copilot --version
 
           copilot plugin marketplace add .
-          copilot plugin marketplace browse github-build-or-reuse 2>&1 | tee /tmp/copilot-marketplace.txt
-          grep -q 'github-build-or-reuse' /tmp/copilot-marketplace.txt
+          copilot plugin marketplace browse github-build-or-reuse --json > /tmp/copilot-marketplace.json
+          cat /tmp/copilot-marketplace.json
+          grep -q 'github-build-or-reuse' /tmp/copilot-marketplace.json
 
           copilot plugin install github-build-or-reuse@github-build-or-reuse
-          copilot plugin list 2>&1 | tee /tmp/copilot-plugins.txt
-          grep -q 'github-build-or-reuse@github-build-or-reuse' /tmp/copilot-plugins.txt
+          copilot plugin list --json > /tmp/copilot-plugins.json
+          cat /tmp/copilot-plugins.json
+          python - <<'PY'
+          import json
+          rows = json.load(open('/tmp/copilot-plugins.json'))
+          matches = [r for r in rows if r.get('name') == 'github-build-or-reuse' and r.get('marketplace') == 'github-build-or-reuse']
+          assert len(matches) == 1, matches
+          row = matches[0]
+          assert row.get('version') == '1.2.3', row
+          assert row.get('enabled') is True, row
+          PY
 
-          echo 'OK: Copilot CLI marketplace installed github-build-or-reuse'
+          echo 'OK: Copilot CLI 1.0.85 installed and enabled github-build-or-reuse v1.2.3'
 
       - name: Validate Codex CLI Agent Plugin marketplace install
         env:
@@ -124,7 +134,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$CODEX_HOME"
-          npm install --global '@openai/codex@0.153.4'
+          npm install --global '@openai/codex@0.154.0'
           codex --version
 
           codex plugin marketplace add .
@@ -140,7 +150,7 @@ jobs:
           grep -q '"installed": true' /tmp/codex-plugins.json
           grep -q '"enabled": true' /tmp/codex-plugins.json
 
-          echo 'OK: Codex CLI installed and enabled the portable github-build-or-reuse Agent Plugin'
+          echo 'OK: Codex CLI 0.154.0 installed and enabled the portable github-build-or-reuse Agent Plugin'
 
       - name: Validate Claude Code plugin marketplace install
         env:
