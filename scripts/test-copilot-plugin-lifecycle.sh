@@ -18,11 +18,11 @@ if ! command -v copilot >/dev/null 2>&1; then
 fi
 
 SANDBOX="$(mktemp -d)"
-GIT_DAEMON_PID=""
+HTTP_SERVER_PID=""
 cleanup() {
-  if [[ -n "$GIT_DAEMON_PID" ]]; then
-    kill "$GIT_DAEMON_PID" 2>/dev/null || true
-    wait "$GIT_DAEMON_PID" 2>/dev/null || true
+  if [[ -n "$HTTP_SERVER_PID" ]]; then
+    kill "$HTTP_SERVER_PID" 2>/dev/null || true
+    wait "$HTTP_SERVER_PID" 2>/dev/null || true
   fi
   rm -rf "$SANDBOX"
 }
@@ -102,6 +102,8 @@ publish_marketplace_state() {
   git -C "$MARKETPLACE_WORK" add marketplace.json
   git -C "$MARKETPLACE_WORK" commit -m "marketplace: publish $version" >/dev/null
   git -C "$MARKETPLACE_WORK" push origin main >/dev/null
+  # Enable read-only dumb HTTP cloning from the local bare repository.
+  git --git-dir="$MARKETPLACE_BARE" update-server-info
 }
 
 dump_state() {
@@ -170,9 +172,10 @@ assert_installed_skill() {
 assert_release_commit "$OLD_REF" "$OLD_SHA"
 assert_release_commit "$NEW_REF" "$NEW_SHA"
 
-# Create a genuinely remote (Git URL) marketplace fixture that can advance while
-# keeping the same registered marketplace identity. The plugin payload itself is
-# always fetched from the two real, SHA-verified GitHub releases above.
+# Create a genuinely remote Git marketplace fixture that can advance while
+# keeping the same registered marketplace identity. It is served read-only over
+# HTTP from localhost; the plugin payload itself is fetched from the two real,
+# SHA-verified GitHub releases above.
 git init --bare "$MARKETPLACE_BARE" >/dev/null
 git -C "$MARKETPLACE_WORK" init >/dev/null
 git -C "$MARKETPLACE_WORK" config user.name "Lifecycle Test"
@@ -181,6 +184,7 @@ git -C "$MARKETPLACE_WORK" remote add origin "$MARKETPLACE_BARE"
 git -C "$MARKETPLACE_WORK" checkout -b main >/dev/null
 publish_marketplace_state "$OLD_VERSION" "$OLD_REF" "$OLD_SHA"
 git --git-dir="$MARKETPLACE_BARE" symbolic-ref HEAD refs/heads/main
+git --git-dir="$MARKETPLACE_BARE" update-server-info
 
 auto_port="$(python - <<'PY'
 import socket
@@ -189,10 +193,10 @@ with socket.socket() as s:
     print(s.getsockname()[1])
 PY
 )"
-git daemon --reuseaddr --export-all --base-path="$SANDBOX" --listen=127.0.0.1 --port="$auto_port" "$MARKETPLACE_BARE" &
-GIT_DAEMON_PID=$!
+python -m http.server "$auto_port" --bind 127.0.0.1 --directory "$SANDBOX" >"$SANDBOX/http.log" 2>&1 &
+HTTP_SERVER_PID=$!
 sleep 1
-MARKETPLACE_URL="git://127.0.0.1:$auto_port/marketplace.git"
+MARKETPLACE_URL="http://127.0.0.1:$auto_port/marketplace.git"
 git ls-remote "$MARKETPLACE_URL" refs/heads/main >/dev/null
 
 copilot plugin marketplace add "$MARKETPLACE_URL"
