@@ -5,8 +5,12 @@ on:
   schedule:
     - cron: '17 4 * * 1'
 
+# GitHub Copilot SDK supports the built-in Actions token for organization-owned
+# repositories when the organization enables Copilot CLI billing/policy. An
+# explicit user token remains available as a trusted fallback.
 permissions:
   contents: read
+  copilot-requests: write
 
 jobs:
   evaluate:
@@ -14,24 +18,57 @@ jobs:
     timeout-minutes: 60
     env:
       WAZA_NO_UPDATE_CHECK: '1'
-      COPILOT_SDK_TOKEN: ${{ secrets.COPILOT_SDK_TOKEN }}
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
+      REPOSITORY_OWNER_TYPE: ${{ github.event.repository.owner.type }}
+      GITHUB_EVENT_NAME: ${{ github.event_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Detect trusted model credential
+      - name: Detect supported Copilot authentication
         id: credentials
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -n "${COPILOT_SDK_TOKEN:-}" ]]; then
+          if [[ -n "${COPILOT_GITHUB_TOKEN:-}" ]]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "mode=user-token" >> "$GITHUB_OUTPUT"
+            echo "OK: using explicit COPILOT_GITHUB_TOKEN for trusted Waza execution"
+          elif [[ "${REPOSITORY_OWNER_TYPE:-}" == "Organization" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "mode=actions-token" >> "$GITHUB_OUTPUT"
+            echo "OK: using built-in GITHUB_TOKEN with copilot-requests: write"
           else
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::COPILOT_SDK_TOKEN is not configured; model-backed eval was skipped."
+            echo "mode=none" >> "$GITHUB_OUTPUT"
+            if [[ "${GITHUB_EVENT_NAME:-}" == "workflow_dispatch" ]]; then
+              echo "::error::Manual model-backed evaluation was requested, but no supported Copilot credential is available. Refusing to return a misleading green run."
+            else
+              echo "::notice::No supported Copilot credential is available; scheduled model-backed eval was skipped."
+            fi
           fi
+
+      - name: Reject manual run without model credential
+        if: github.event_name == 'workflow_dispatch' && steps.credentials.outputs.available != 'true'
+        shell: bash
+        run: |
+          echo "Manual trusted behavioral evaluation requires actual model execution." >&2
+          exit 1
+
+      - name: Summarize skipped scheduled evaluation
+        if: github.event_name == 'schedule' && steps.credentials.outputs.available != 'true'
+        shell: bash
+        run: |
+          {
+            echo '## Trusted behavioral evaluation'
+            echo
+            echo '**Status: skipped — no supported Copilot credential was available.**'
+            echo
+            echo 'Static evaluation remains separate and is not behavioral model evidence.'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Install pinned Waza
         if: steps.credentials.outputs.available == 'true'
@@ -46,6 +83,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          echo "Copilot auth mode: ${{ steps.credentials.outputs.mode }}"
           mkdir -p eval-results/transcripts
           waza run evals/github-build-or-reuse/eval.yaml \
             --output eval-results/results.json \
