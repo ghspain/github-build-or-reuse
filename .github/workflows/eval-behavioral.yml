@@ -2,14 +2,20 @@ name: Trusted Behavioral Skill Evaluation
 
 on:
   workflow_dispatch:
+    inputs:
+      force:
+        description: Run the model-backed suite even if nothing changed since the last successful run
+        type: boolean
+        default: false
   schedule:
     - cron: '17 4 * * 1'
 
 # GitHub Copilot SDK supports the built-in Actions token for organization-owned
 # repositories when the organization enables Copilot CLI billing/policy. An
-# explicit user token remains available as a trusted fallback.
+# explicit user token remains available as a trusted fallback. See docs/evals.md.
 permissions:
   contents: read
+  actions: read
   copilot-requests: write
 
 jobs:
@@ -20,16 +26,58 @@ jobs:
       WAZA_NO_UPDATE_CHECK: '1'
       COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
       GITHUB_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
       REPOSITORY_OWNER_TYPE: ${{ github.event.repository.owner.type }}
       GITHUB_EVENT_NAME: ${{ github.event_name }}
+      FORCE: ${{ github.event.inputs.force || 'false' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      # Cost control: model-backed runs consume premium requests, so run only when the
+      # skill, the evals or the eval machinery changed since the last successful
+      # model-backed run (recorded as an `eval-baseline-<sha>` artifact, 90 days).
+      - name: Decide whether the suite needs to run
+        id: plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          reason=""
+          baseline=""
+          if [[ "$FORCE" == "true" ]]; then
+            reason="force input set"
+          else
+            baseline="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" \
+              --jq '.artifacts[] | select((.expired | not) and (.name | startswith("eval-baseline-"))) | [.created_at, .name] | @tsv' \
+              | sort -r | head -n1 | cut -f2 | sed 's/^eval-baseline-//')"
+            if [[ -z "$baseline" ]]; then
+              reason="no successful model-backed baseline found"
+            elif ! git cat-file -e "${baseline}^{commit}" 2>/dev/null; then
+              reason="baseline ${baseline} is not reachable"
+            elif ! git diff --quiet "$baseline" HEAD -- skills evals scripts/install-waza-ci.sh .github/workflows/eval-behavioral.yml; then
+              reason="skill, evals or eval machinery changed since ${baseline:0:12}"
+            fi
+          fi
+          if [[ -n "$reason" ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Running suite: $reason"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            {
+              echo '## Trusted behavioral evaluation'
+              echo
+              echo "**Status: skipped. No changes to skills, evals or eval machinery since the last successful model-backed run (${baseline:0:12}).**"
+              echo
+              echo 'Premium requests used this run: 0. Use the `force` input to run anyway.'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Detect supported Copilot authentication
         id: credentials
+        if: steps.plan.outputs.run == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -52,20 +100,20 @@ jobs:
           fi
 
       - name: Reject manual run without model credential
-        if: github.event_name == 'workflow_dispatch' && steps.credentials.outputs.available != 'true'
+        if: steps.plan.outputs.run == 'true' && github.event_name == 'workflow_dispatch' && steps.credentials.outputs.available != 'true'
         shell: bash
         run: |
           echo "Manual trusted behavioral evaluation requires actual model execution." >&2
           exit 1
 
       - name: Summarize skipped scheduled evaluation
-        if: github.event_name == 'schedule' && steps.credentials.outputs.available != 'true'
+        if: steps.plan.outputs.run == 'true' && github.event_name == 'schedule' && steps.credentials.outputs.available != 'true'
         shell: bash
         run: |
           {
             echo '## Trusted behavioral evaluation'
             echo
-            echo '**Status: skipped — no supported Copilot credential was available.**'
+            echo '**Status: skipped, no supported Copilot credential was available.**'
             echo
             echo 'Static evaluation remains separate and is not behavioral model evidence.'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -81,14 +129,62 @@ jobs:
       - name: Run intrinsic behavioral suite
         if: steps.credentials.outputs.available == 'true'
         shell: bash
+        env:
+          AUTH_MODE: ${{ steps.credentials.outputs.mode }}
         run: |
           set -euo pipefail
-          echo "Copilot auth mode: ${{ steps.credentials.outputs.mode }}"
+          echo "Copilot auth mode: ${AUTH_MODE}"
           mkdir -p eval-results/transcripts
+          status=0
           waza run evals/github-build-or-reuse/eval.yaml \
             --output eval-results/results.json \
             --reporter junit:eval-results/junit.xml \
-            --transcript-dir eval-results/transcripts
+            --transcript-dir eval-results/transcripts 2>&1 | tee eval-results/waza.log || status="${PIPESTATUS[0]}"
+          if grep -q 'Authorization error' eval-results/waza.log; then
+            {
+              echo '## Trusted behavioral evaluation'
+              echo
+              echo '**Status: failed. Copilot rejected the credential (`Authorization error`).**'
+              echo
+              echo "Auth mode: \`${AUTH_MODE}\`. For \`actions-token\` the organization must enable the Copilot CLI policy and billing; otherwise set a \`COPILOT_GITHUB_TOKEN\` secret. See docs/evals.md."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$status"
+
+      - name: Report premium request usage
+        if: always() && steps.credentials.outputs.available == 'true'
+        shell: bash
+        env:
+          AUTH_MODE: ${{ steps.credentials.outputs.mode }}
+        run: |
+          set -euo pipefail
+          tasks="$(find evals/github-build-or-reuse/tasks -name '*.yaml' | wc -l)"
+          trials="$(sed -n 's/^ *trials_per_task: *\([0-9][0-9]*\).*/\1/p' evals/github-build-or-reuse/eval.yaml | head -n1)"
+          trials="${trials:-1}"
+          if [[ "$AUTH_MODE" == "user-token" ]]; then
+            billed="the COPILOT_GITHUB_TOKEN owner's premium-request quota"
+          else
+            billed="the organization's Copilot billing"
+          fi
+          {
+            echo
+            echo "**Premium requests:** about $((tasks * trials)) model sessions (${tasks} tasks x ${trials} trial(s)), each costing at least one premium request times the model multiplier, billed to ${billed}."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record successful baseline
+        if: steps.credentials.outputs.available == 'true' && success()
+        shell: bash
+        run: |
+          mkdir -p eval-baseline
+          echo "${GITHUB_SHA}" > eval-baseline/sha.txt
+
+      - name: Upload baseline marker
+        if: steps.credentials.outputs.available == 'true' && success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: eval-baseline-${{ github.sha }}
+          path: eval-baseline/
+          retention-days: 90
 
       - name: Upload behavioral evidence
         if: always() && steps.credentials.outputs.available == 'true'
