@@ -121,11 +121,11 @@ jobs:
           matches = [r for r in rows if r.get('name') == 'github-build-or-reuse' and r.get('marketplace') == 'github-build-or-reuse']
           assert len(matches) == 1, matches
           row = matches[0]
-          assert row.get('version') == '1.2.3', row
+          assert row.get('version') == '1.2.4', row
           assert row.get('enabled') is True, row
           PY
 
-          echo 'OK: Copilot CLI 1.0.85 installed and enabled github-build-or-reuse v1.2.3'
+          echo 'OK: Copilot CLI 1.0.85 installed and enabled github-build-or-reuse v1.2.4'
 
       - name: Validate Codex CLI Agent Plugin marketplace install
         env:

@@ -4,6 +4,24 @@ All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-11-17
+
+### Added
+
+- GitHub Copilot CLI plugin update-lifecycle rehearsal across immutable `v1.2.2` and `v1.2.3` releases (#38).
+- Sanitized behavioral runtime evidence contract, template and validator (#43).
+- `docs/plugin-lifecycle-evidence.md` separating install/discovery, lifecycle/update and behavioral evidence (#41).
+
+### Changed
+
+- Refreshed GitHub Copilot CLI (1.0.85) and OpenAI Codex CLI (0.154.0) compatibility baselines (#41).
+- Trusted Waza evaluation uses the current Copilot SDK authentication contract (#45).
+- `actions/upload-artifact` 7.0.1 and GitHub Agentic Workflows CLI v0.88.7 (#39, #46).
+
+### Compatibility
+
+- Canonical skill behavior, the skills.sh / `npx skills` install path and generated adapters are unchanged apart from version fields.
+
 ## [1.2.3] - 2026-09-07
 
 ### Added
