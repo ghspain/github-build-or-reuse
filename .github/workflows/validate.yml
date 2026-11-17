@@ -53,7 +53,7 @@ jobs:
           skills-ref validate skills/github-build-or-reuse
 
       - name: Set up GitHub Agentic Workflows CLI
-        uses: github/gh-aw/actions/setup-cli@bde367913adeb3132f0a171594c88a17f4b7d08c # v0.88.7
+        uses: github/gh-aw/actions/setup-cli@399a445fe2d8926c616b54b1b82a16b5b2be4445 # v1.2.2
         with:
           version: v0.88.7
 
